@@ -1,0 +1,101 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Apr 24, 2016, 6:21:25 PM
+    Author     : Peggy Fisher 
+*/
+.root {
+    -fx-background-color: #336699;
+    -fx-font-size: 16px;
+}
+
+.dark {
+	-fx-background-color: #2b455e;
+}
+
+.gray {
+	-fx-background-color: #778899;
+	-fx-alignment: CENTER;
+	-fx-font-size: 18px; 
+	-fx-font-family: "Arial";
+	-fx-fill: white;
+	-fx-stroke: black;
+	-fx-stroke-width: 1px;
+	-fx-effect: dropshadow( gaussian , black , 0,0,2,2 );
+}
+
+#hbox {
+    -fx-alignment: TOP_CENTER;
+    -fx-padding: 15, 5, 5, 5;
+    
+}
+
+#vbox {
+    -fx-alignment: TOP_CENTER;
+    -fx-padding: 5, 5, 5, 5;
+}
+
+#textstyle {
+	-fx-font-size: 42px; 
+	-fx-font-family: "Arial Black";
+	-fx-fill: white;
+	-fx-stroke: black;
+	-fx-stroke-width: 1px;
+	-fx-effect: dropshadow( gaussian , black , 0,0,2,2 );
+}
+
+#textmed {
+	-fx-font-size: 28px;
+}
+
+#textsm {
+	-fx-font-size: 18px;
+}
+
+#textitalics {
+	-fx-font: italic 16px "Arial";
+	-fx-fill: white;
+}
+
+.button {
+    -fx-font: bold 24px "Arial";
+	-fx-pref-width: 180px;
+	-fx-pref-height: 30px;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+  	-fx-padding: 5 10 5 10;
+}
+
+#tallbtn {
+	-fx-pref-height: 70px;
+}
+
+#supertallbtn {
+    -fx-font: bold 34px "Arial";
+	-fx-pref-width: 150px;
+	-fx-pref-height: 300px;
+	-fx-padding: 0, 5, 0, 5;
+}
+
+#plusbtn {
+    -fx-font: bold 18px "Arial Black";
+	-fx-pref-width: 30px;
+	-fx-pref-height: 30px;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+  	-fx-padding: 0;
+}
+
+#searchpad {
+	-fx-padding: 0 50 10 50;
+	-fx-alignment: TOP_CENTER;
+}
+
+.pane {
+	-fx-border-style: dotted; 
+	-fx-border-width: 0 0 0 0;
+    -fx-border-color: gray;
+} 
