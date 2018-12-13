@@ -13,9 +13,16 @@
 
 package application;
 
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -35,14 +42,22 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
 public class FrontEnd extends Application {
 
-	BorderPane mainPanes = new BorderPane();
-	BorderPane leftPanes = new BorderPane();
-	BorderPane rightPanes = new BorderPane();
+	static BorderPane mainPanes = new BorderPane();
+	static BorderPane leftPanes = new BorderPane();
+	static BorderPane rightPanes = new BorderPane();
+	static Stage stage = new Stage();
+	
+	static  FileChooser fileChooser = new FileChooser();
+	
+	static int filterCnt = 0;
+	
+	static VBox filterPane;
 	
 	final static String TITLE_HEADER 		= "        Awesome Foodie Dietplan App!";
 	final static String TITLE_LEFT 			= "Current Food List";
@@ -67,7 +82,7 @@ public class FrontEnd extends Application {
 	final static String PROMPT_ENTER_VAL	= "Enter Value...";
 
 	final static String FTR_1				= "v0.1";
-	final static String FTR_2				= "© 2018 Group Twelve";
+	final static String FTR_2				= "ï¿½ 2018 Group Twelve";
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
@@ -75,6 +90,7 @@ public class FrontEnd extends Application {
 	public void start(Stage primaryStage) {
 
 		Scene scene = new Scene(mainPanes, 1600, 900);
+		
 		
 		// Create Initial Children
 		HBox headerPane = headerHBox(TITLE_HEADER);
@@ -96,6 +112,7 @@ public class FrontEnd extends Application {
 		primaryStage.setTitle(TITLE_HEADER);
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		stage = primaryStage;
 	}
 
 	// Header
@@ -124,18 +141,18 @@ public class FrontEnd extends Application {
 	
 /* Left Border Pane */
 	public static BorderPane setupLeftPanes() {
-		BorderPane left = new BorderPane();
+		leftPanes = new BorderPane();
 		
-		left.setTop(leftTopPane());
+		leftPanes.setTop(leftTopPane());
 		
-		left.setLeft(vertPadding());
-		left.setCenter(leftCenterPane());
-		left.setRight(vertPadding());
+		leftPanes.setLeft(vertPadding());
+		leftPanes.setCenter(leftCenterList());
+		leftPanes.setRight(vertPadding());
 		
-		left.setBottom(leftBottomPane());
+		leftPanes.setBottom(leftBottomPane());
 		
-		left.getStyleClass().add("pane");
-		return left;
+		leftPanes.getStyleClass().add("pane");
+		return leftPanes;
 		
 	}
 	// Left Top: Load/Add Buttons
@@ -152,6 +169,35 @@ public class FrontEnd extends Application {
 		btn2.setId("tallbtn");
 		btn3.setId("tallbtn");
 		buttons.setAlignment(Pos.TOP_CENTER);
+		
+		// Load File Handler
+        btn1.setOnAction(
+            new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(final ActionEvent e) {
+                    File file = fileChooser.showOpenDialog(stage);
+                    if (file != null) {
+                    	// TODO: replace me
+                        System.out.println("Opening File: " + file.getName());
+                    }
+                }
+            });
+        
+        // Add Item Handler
+        
+        // Save List Handler
+        btn3.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                        File file = fileChooser.showSaveDialog(stage);
+                        if (file != null) {
+                        	// TODO: replace me
+                            System.out.println("Saving File: " + file.getName());
+                        }
+                    }
+                });
+		
 		buttons.getChildren().addAll(btn1, btn2, btn3);
 		buttons.setId("hbox");
 		buttons.getStyleClass().add("pane");
@@ -160,7 +206,7 @@ public class FrontEnd extends Application {
 	
 	// Left Center: Menu List
 	
-	public static VBox leftCenterPane() {
+	public static VBox leftCenterList() {
 		VBox vbLeftCenter = new VBox(5);
 		Text text = new Text(TITLE_LEFT);
 		text.setId("textstyle");
@@ -175,6 +221,17 @@ public class FrontEnd extends Application {
 		HBox buttons = new HBox(25);
 		Button btn1 = new Button(BTN_CLR_FLTRS);
 		Button btn2 = new Button(BTN_APPLY_FLTRS);
+		
+		// Clear Filters
+        btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    	// TODO: clear data structure?
+                        leftPanes.setBottom(leftBottomPane());
+                    }
+                });
+		
 		buttons.setAlignment(Pos.TOP_CENTER);
 		buttons.getChildren().addAll(btn1, btn2);
 		buttons.setId("hbox");
@@ -183,6 +240,44 @@ public class FrontEnd extends Application {
 		vbLeftCenter.getStyleClass().add("pane");
 		return vbLeftCenter;
 	}
+	
+	// Left Center: Add
+	
+//	public static VBox leftCenterAdd() {
+//		VBox vbLeftCenter = new VBox(5);
+//		Text text = new Text(TITLE_LEFT);
+//		text.setId("textstyle");
+//		vbLeftCenter.setId("vbox");
+//		vbLeftCenter.getChildren().add(text);
+//		vbLeftCenter.setPrefWidth(500);
+//
+//		ListView<String> nameList = new ListView<>();
+//		nameList.setItems(BackEnd.getTestData().sorted());
+//		vbLeftCenter.getChildren().add(nameList);
+//		
+//		HBox buttons = new HBox(25);
+//		btnClear = new Button(BTN_CLR_FLTRS);
+//		Button btn2 = new Button(BTN_APPLY_FLTRS);
+//		
+//		// Clear Filters
+//        btnClear.setOnAction(
+//                new EventHandler<ActionEvent>() {
+//                    @Override
+//                    public void handle(final ActionEvent e) {
+//                    	// TODO: replace me
+//                        System.out.println("Clearing Filter");
+//                        leftPanes.setBottom(leftBottomPane());
+//                    }
+//                });
+//		buttons.setAlignment(Pos.TOP_CENTER);
+//		buttons.getChildren().addAll(btnClear, btn2);
+//		buttons.setId("hbox");
+//		vbLeftCenter.getChildren().add(buttons);
+//		
+//		vbLeftCenter.getStyleClass().add("pane");
+//		return vbLeftCenter;
+//	}
+	
 	
 	// Left Left & Right: Just Padding
 	public static VBox vertPadding() {
@@ -194,7 +289,8 @@ public class FrontEnd extends Application {
 	
 	// Left Bottom: Filters
 	public static VBox leftBottomPane() {
-		VBox filterPane = new VBox(10);
+		filterCnt = 0;
+		filterPane = new VBox(10);
 		filterPane.setPrefHeight(200);
 		
 		// Search by Item Name
@@ -215,19 +311,43 @@ public class FrontEnd extends Application {
 	
 	// Filter Row instance
 	public static HBox getFilterRow() {
+		filterCnt += 1;
+		
 		HBox filters = new HBox(40);
 		filters.setAlignment(Pos.CENTER);
 		Button btn1 = new Button("+");
 		btn1.setTooltip(new Tooltip("Click to add another filter!"));
 		btn1.setId("plusbtn");
+        
+		// Add another row
+        btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    	if(filterCnt <= 2) {
+                        	// TODO: check for valid values
+                            filterPane.getChildren().add(getFilterRow());
+                    	}
+                    }
+                });
 		
 		filters.getChildren().add(btn1);
 		
 		
-		ChoiceBox<String> cb1 = new ChoiceBox<String>(BackEnd.getNutrients());
-		cb1.setValue("Nutrients");
-		ChoiceBox<String> cb2 = new ChoiceBox<String>(BackEnd.getComparators());
-		cb2.setValue("Comparators");
+		ChoiceBox<String> cb1 = new ChoiceBox<String>();
+		List<String> nutNames = Stream.of(Nutrients.values())
+                .map(Nutrients::getName)
+                .collect(Collectors.toList());
+		cb1.getItems().setAll(nutNames);
+		cb1.setValue("Nutrient");
+		
+		ChoiceBox<String> cb2 = new ChoiceBox<String>();
+		List<String> comps = Stream.of(Comparators.values())
+                .map(Comparators::toString)
+                .collect(Collectors.toList());
+		cb2.getItems().setAll(comps);
+		cb2.setValue("Comparator");
+		
 		TextField compValue = new TextField();
 		compValue.setPromptText(PROMPT_ENTER_VAL);
 		compValue.setPrefColumnCount(10);
