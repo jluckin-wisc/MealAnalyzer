@@ -184,6 +184,10 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
         abstract boolean isOverflow();
         
         public String toString() {
+//        	if(this.getClass()== LeafNode.class) {
+//            		
+//        		return ((LeafNode)this).values.toString();
+//        	}
             return keys.toString();
         }
     
@@ -267,8 +271,10 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
 	            	//Changing keys/values
 	            	int half = super.keys.size()/2 + (super.keys.size()%2)-1; 
 	            	K promotedKey = this.keys.get(half);
-	            	
-	
+	            	this.children = new ArrayList<Node>(this.children.subList(0,half+1));
+	            	for(int i=0;i<this.children.size();i++) {
+	            		this.children.get(i).parent= this;
+	            	}
 	       //System.out.println("Half: " + half);
 	       //System.out.println("Size: " + this.keys.size());
 	            	List<K> newKeys = new ArrayList<K>(this.keys.subList(0,half));
@@ -335,6 +341,9 @@ System.out.println("Inserting into last childNode");
 //        	newSibling.values = this.values.subList(half, keys.size());
         	
         	newSibling.children = new ArrayList<Node>(this.children.subList(half+1,children.size()));
+        	for(int i=0;i<newSibling.children.size();i++) {
+        		newSibling.children.get(i).parent= newSibling;
+        	}
 //        	for(int i=0; i<half; i++) {
 //        		newSibling.insert(super.keys.get(i), this.values.get(i));
 //        	}
@@ -534,13 +543,14 @@ System.out.println("Inserting into last childNode");
         // just that it functions as a data structure with
         // insert, rangeSearch, and toString() working.
         List<Double> list = new ArrayList<>();
-
+//TODO Change back to 400
         for (int i = 0; i < 400; i++) {
             Double j = dd[rnd1.nextInt(4)];
             list.add(j);
             bpTree.insert(j, j);
             System.out.println("\n\nTree structure:\n" + bpTree.toString());
         }
+        
         List<Double> filteredValues = bpTree.rangeSearch(0.2d, ">=");
        //TODO System.out.println("Filtered values: " + filteredValues.toString());
     }
