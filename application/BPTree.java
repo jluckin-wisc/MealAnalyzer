@@ -27,6 +27,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
     // Root of the tree
     private Node root;
     
+    
     // Branching factor is the number of children nodes 
     // for internal nodes of the tree
     private int branchingFactor;
@@ -42,7 +43,13 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
             throw new IllegalArgumentException(
                "Illegal branching factor: " + branchingFactor);
         }
-        // TODO : Complete
+        
+        //Assigns branching factor
+        this.branchingFactor = branchingFactor;
+        
+        //Assigns root to null
+        this.root = null;
+        
     }
     
     
@@ -52,6 +59,16 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
      */
     @Override
     public void insert(K key, V value) {
+    	//Root is null then this the first node
+    	if(this.root == null) {
+    		LeafNode node = new LeafNode();
+    		node.insert(key, value);
+    		this.root = node;
+    		return;
+    		
+    	}
+    	
+    	
         // TODO : Complete
     }
     
@@ -123,6 +140,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          */
         Node() {
             // TODO : Complete
+        	keys = new ArrayList<K>();
         }
         
         /**
@@ -184,7 +202,8 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          */
         InternalNode() {
             super();
-            // TODO : Complete
+            children = new ArrayList<Node>();
+            
         }
         
         /**
@@ -192,7 +211,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#getFirstLeafKey()
          */
         K getFirstLeafKey() {
-            // TODO : Complete
+            //TODO
             return null;
         }
         
@@ -258,7 +277,9 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          */
         LeafNode() {
             super();
-            // TODO : Complete
+            values = new ArrayList<V>();
+            next = null;
+            previous = null;
         }
         
         
@@ -285,7 +306,29 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#insert(Comparable, Object)
          */
         void insert(K key, V value) {
-            // TODO : Complete
+        	int keyPosition = -1;
+        	
+        	if(super.keys.size()==0) {
+        		super.keys.add(key);
+        		keyPosition = 0;
+        	}else {
+        		for(int i = 0; i<super.keys.size(); i++) {
+        			if(key.compareTo(super.keys.get(i))<0) {
+        				super.keys.add(i,key);
+        				keyPosition = i;
+        				break;
+        			}
+        		}
+        		if(keyPosition==-1) {
+        			super.keys.add(key);
+    				
+        		}
+        	}
+            if(keyPosition>-1) {
+            	this.values.add(keyPosition, value);
+            } else {
+            	this.values.add(value);
+            }
         }
         
         /**
