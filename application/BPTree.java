@@ -49,8 +49,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
         
         //Assigns root to null
         this.root = null;
-        
-    }
+        }
     
     
     /*
@@ -63,9 +62,12 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
     	if(this.root == null) {
     		LeafNode node = new LeafNode();
     		node.insert(key, value);
+    		node.parent = null;
     		this.root = node;
     		return;
     		
+    	} else {
+    		root.insert(key, value);
     	}
     	
     	
@@ -134,6 +136,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
         
         // List of keys
         List<K> keys;
+        Node parent;
         
         /**
          * Package constructor
@@ -207,8 +210,9 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
         }
         
         /**
-         * (non-Javadoc)
-         * @see BPTree.Node#getFirstLeafKey()
+         * Gets the first leaf key of the tree
+         * 
+         * @return key
          */
         K getFirstLeafKey() {
             //TODO
@@ -220,7 +224,9 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#isOverflow()
          */
         boolean isOverflow() {
-            // TODO : Complete
+        	if(super.keys.size()>=BPTree.this.branchingFactor) {
+            	return true;
+            }
             return false;
         }
         
@@ -229,7 +235,73 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#insert(java.lang.Comparable, java.lang.Object)
          */
         void insert(K key, V value) {
-            // TODO : Complete
+System.out.println("Inserting into Internal Node: " + value);
+        	if(value == null) {
+	        	int keyPosition = -1;
+	        	
+	        	if(super.keys.size()==0) {
+	        		super.keys.add(key);
+	        		keyPosition = 0;
+	        	}else {
+	        		for(int i = 0; i<super.keys.size(); i++) {
+	        			if(key.compareTo(super.keys.get(i))<0) {
+	        				super.keys.add(i,key);
+	        				keyPosition = i;
+	        				break;
+	        			}
+	        		}
+	        		if(keyPosition==-1) {
+	        			super.keys.add(key);
+	    				
+	        		}
+	        	}
+	//            if(keyPosition>-1) {
+	//            	this.values.add(keyPosition, value);
+	//            } else {
+	//            	this.values.add(value);
+	//            }
+	            
+	            if(this.isOverflow()) {
+	            	InternalNode newSibling = (InternalNode) this.split();
+	            	
+	            	
+	            	//Changing keys/values
+	            	int half = super.keys.size()/2 + (super.keys.size()%2)-1; 
+	            	K promotedKey = this.keys.get(half);
+	//            	V promotedValue = this.values.get(half);
+	       System.out.println("Half: " + half);
+	       System.out.println("Size: " + this.keys.size());
+	            	List<K> newKeys = new ArrayList<K>(this.keys.subList(0,half));
+	//            	List<V> newValues = this.values.subList(0,half);
+	            	this.keys= newKeys;
+	//            	this.values = newValues;
+	            	
+	            	//Promoting
+	            	//Finding parent node
+	            	if(this.parent == null) {
+	            		InternalNode promotedNode = new InternalNode();
+	//            		promotedNode.insert(promotedKey, promotedValue);
+	            		promotedNode.children.add(this);
+	            		promotedNode.children.add(newSibling);
+	//            		promotedNode.children.add(this.next);
+	            		BPTree.this.root = promotedNode;
+	            		this.parent = promotedNode;
+	            		
+	            	}
+	            	newSibling.parent = this.parent;
+	            	this.parent.insert(promotedKey, value);
+	            	
+	            }
+        	} else {
+        		//Find correct leaf node
+        		for(int i=0; i<this.keys.size();i++) {
+        			if(key.compareTo(this.keys.get(i))<0){
+        				this.children.get(i).insert(key, value);
+        			} else if(i== this.keys.size()-1) {
+        				this.children.get(i+1).insert(key,value);
+        			}
+        		}
+        	}
         }
         
         /**
@@ -237,8 +309,26 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#split()
          */
         Node split() {
+System.out.println("Splitting InternalNode");
             // TODO : Complete
-            return null;
+        	
+        	//Create a new node to store half of the current node's data
+        	InternalNode newSibling = new InternalNode();
+        	
+        	//Find the halfway point of the keys
+        	int half = super.keys.size()/2 + (super.keys.size()%2)-1;
+        	
+        	//Forming the left leafNode
+        	newSibling.keys = this.keys.subList(half, keys.size());
+//        	newSibling.values = this.values.subList(half, keys.size());
+        	
+//        	for(int i=0; i<half; i++) {
+//        		newSibling.insert(super.keys.get(i), this.values.get(i));
+//        	}
+        	
+        	
+            return newSibling;
+            
         }
         
         /**
@@ -297,7 +387,9 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#isOverflow()
          */
         boolean isOverflow() {
-            // TODO : Complete
+        	if(super.keys.size()>=BPTree.this.branchingFactor) {
+            	return true;
+            }
             return false;
         }
         
@@ -306,6 +398,7 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
          * @see BPTree.Node#insert(Comparable, Object)
          */
         void insert(K key, V value) {
+ System.out.println("Inserting into LeafNode");
         	int keyPosition = -1;
         	
         	if(super.keys.size()==0) {
@@ -329,15 +422,66 @@ public class BPTree<K extends Comparable<K>, V> implements BPTreeADT<K, V> {
             } else {
             	this.values.add(value);
             }
+            
+            if(this.isOverflow()) {
+            	LeafNode newSibling = (LeafNode) this.split();
+            	newSibling.next = this.next;
+            	this.next = newSibling;
+            	newSibling.previous = this;
+            	
+            	//Changing keys/values
+            	int half = super.keys.size()/2 + (super.keys.size()%2)-1; 
+            	K promotedKey = this.keys.get(half);
+            	V promotedValue = this.values.get(half);
+       System.out.println("Half: " + half);
+       System.out.println("Size: " + this.keys.size());
+            	List<K> newKeys = new ArrayList<K>(this.keys.subList(0,half));
+            	List<V> newValues = new ArrayList<V>(this.values.subList(0,half));
+            	this.keys= newKeys;
+            	this.values = newValues;
+            	
+            	//Promoting
+            	//Finding parent node
+            	if(this.parent == null) {
+            		InternalNode promotedNode = new InternalNode();
+            		promotedNode.insert(promotedKey, promotedValue);
+            		promotedNode.children.add(this);
+            		promotedNode.children.add(this.next);
+            		BPTree.this.root = promotedNode;
+            		this.parent = promotedNode;
+            	}
+            	
+            	this.parent.insert(promotedKey, null);
+            	
+            }
         }
+        
+
         
         /**
          * (non-Javadoc)
          * @see BPTree.Node#split()
          */
         Node split() {
+System.out.println("Splitting LeafNode");
             // TODO : Complete
-            return null;
+        	
+        	//Create a new node to store half of the current node's data
+        	LeafNode newSibling = new LeafNode();
+        	
+        	//Find the halfway point of the keys
+        	int half = super.keys.size()/2 + (super.keys.size()%2)-1;
+        	
+        	//Forming the left leafNode
+        	newSibling.keys = this.keys.subList(half, keys.size());
+        	newSibling.values = this.values.subList(half, keys.size());
+        	
+//        	for(int i=0; i<half; i++) {
+//        		newSibling.insert(super.keys.get(i), this.values.get(i));
+//        	}
+        	
+        	
+            return newSibling;
         }
         
         /**
