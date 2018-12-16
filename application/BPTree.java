@@ -402,26 +402,22 @@ public class BPTree<K extends Comparable<K>, V>
 		 */
 		List<V> rangeSearch(K key,
 				String comparator) {
-			for (int i = 0; i < this.keys
-					.size(); i++) {
-				if (key.compareTo(
-						this.keys.get(i)) >= 0) {
-					return this.children.get(i)
-							.rangeSearch(key,
-									comparator);
-
-				} else if (i == this.keys.size()
-						- 1) {
-					// If i is equal to keys.size() then the key is larger
-					// than all the current keys so it must go into the
-					// the last child node
-					return this.children
-							.get(i + 1)
-							.rangeSearch(key,
-									comparator);
-				}
-			}
-			return null;
+//			for (int i = 0; i < this.keys.size(); i++) {
+//				if (key.compareTo(this.keys.get(i)) <= 0) {
+//					return this.children.get(i).rangeSearch(key,comparator);
+//
+//				} else if (i == this.keys.size()
+//						- 1) {
+//					// If i is equal to keys.size() then the key is larger
+//					// than all the current keys so it must go into the
+//					// the last child node
+//					return this.children.get(i + 1).rangeSearch(key,comparator);
+//				}
+//			}
+			//TODO Optimize this
+			
+		
+			return this.children.get(0).rangeSearch(key, comparator);
 		}
 
 	} // End of class InternalNode
@@ -757,7 +753,7 @@ public class BPTree<K extends Comparable<K>, V>
 		}
 
 		List<Double> filteredValues = bpTree
-				.rangeSearch(0.2d, ">=");
+				.rangeSearch(0.0d, ">=");
 		System.out.println("Filtered values: "
 				+ filteredValues.toString());
 	}

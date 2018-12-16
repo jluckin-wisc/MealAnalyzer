@@ -87,18 +87,30 @@ public class FoodData implements FoodDataADT<FoodItem> {
      */
     @Override
     public List<FoodItem> filterByNutrients(List<String> rules) {
-    	HashSet<FoodItem> queryResult = new HashSet<FoodItem>();
+    	List<FoodItem> queryResult = new ArrayList<FoodItem>();
     	
-        for (String rule : rules) {
-        	queryResult = filterByRule(rule, queryResult);
-        }
-        
+    	for(int i=0; i<rules.size();i++) {
+    		String rule = rules.get(i).trim();
+    		if(i==0) {
+    			queryResult.addAll(filterByRule(rule));
+    		} else {
+    			queryResult.retainAll(filterByRule(rule));
+    		}
+        	
+    	}
+
         return new ArrayList<FoodItem>(queryResult);
     }
     
-    private HashSet<FoodItem> filterByRule(String rule, HashSet<FoodItem> foodItems) {
+    private ArrayList<FoodItem> filterByRule(String rule) {
+    	ArrayList<FoodItem> foodItems = new ArrayList<FoodItem>();
     	String[] ruleParts = rule.split(" ");
-    	List<FoodItem> resultFromRule = indexes.get(ruleParts[0]).rangeSearch(Double.valueOf(ruleParts[1]), ruleParts[2]);
+    	ArrayList<FoodItem> resultFromRule = new ArrayList<FoodItem>();
+    	if(ruleParts[0]==null) {
+    		return resultFromRule;
+    	}
+    	
+    	resultFromRule = (ArrayList<FoodItem>) indexes.get(ruleParts[0]).rangeSearch(Double.valueOf(ruleParts[2]), ruleParts[1]);
     	foodItems.addAll(resultFromRule);
     	return foodItems;
     }
