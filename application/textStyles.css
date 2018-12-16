@@ -99,3 +99,11 @@ and open the template in the editor.
 	-fx-border-width: 0 0 0 0;
     -fx-border-color: gray;
 } 
+
+.choice-box {
+    -fx-pref-width: 160;
+}
+
+.choice-box .context-menu {
+    -fx-pref-width: 160; /* Your width for the context menu background shown */
+}

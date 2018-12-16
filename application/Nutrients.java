@@ -1,6 +1,7 @@
 package application;
 
 public enum Nutrients {
+	NUTRIENTS ("Nutrient"),
 	CALORIES ("Calories"),
 	CARBS ("Carbohydrate"),
 	FAT ("Fat"),

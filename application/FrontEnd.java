@@ -55,17 +55,21 @@ import javafx.stage.Stage;
 
 public class FrontEnd extends Application {
 
+	// static areas that make up the basic structure of the app
 	static BorderPane mainPanes = new BorderPane();
 	static BorderPane leftPanes = new BorderPane();
 	static BorderPane rightPanes = new BorderPane();
 	static Stage stage = new Stage();
 	
-	static  FileChooser fileChooser = new FileChooser();
-	
-	static int filterCnt = 0;
-	
+	// static GUI container references that need to be used elsewhere
 	static VBox filterPane;
 	
+	
+	// static variables to track quantities, etc
+	static int filterCnt = 0;
+	
+	
+	// strings used in the GUI
 	final static String TITLE_HEADER 		= "        Awesome Foodie Dietplan App!";
 	final static String TITLE_LEFT 			= "Current Food List";
 	final static String TITLE_RIGHT 		= "Current Menu";
@@ -92,6 +96,10 @@ public class FrontEnd extends Application {
 	final static String FTR_2				= "� 2018 Group Twelve";
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
+	
+	final static String lblTxtAssemble		= "Assemble your menu to learn its nutrition!";
+	final static String tTipTxtAddFltr		= "Click to add another filter!";
+	
 	
 	private FoodData foodData;
 	private ObservableList<FoodItem> filteredFoodItems;
@@ -131,7 +139,7 @@ public class FrontEnd extends Application {
 	private Button btnExit;
 	
 	// Header
-	public HBox headerHBox(String appTitle) {
+	private HBox headerHBox(String appTitle) {
 		
 		HBox header = new HBox();
 		header.setPadding(new Insets(5, 5, 5, 5));
@@ -163,7 +171,7 @@ public class FrontEnd extends Application {
 	}
 	
 /* Left Border Pane */
-	public BorderPane setupLeftPanes() {
+	private BorderPane setupLeftPanes() {
 		leftPanes = new BorderPane();
 		
 		leftPanes.setTop(leftTopPane());
@@ -179,12 +187,8 @@ public class FrontEnd extends Application {
 		
 	}
 	
-	private Button btnLoadFile;
-	private Button btnAddItem;
-	private Button btnSaveList;
-	
 	// Left Top: Load/Add Buttons
-	public HBox leftTopPane() {
+	private HBox leftTopPane() {
 		HBox buttons = new HBox(25);
 		buttons.setPadding(new Insets(5, 5, 5, 5));
 		Button btnLoadFile = new Button(BTN_LOAD_FILE);
@@ -203,6 +207,7 @@ public class FrontEnd extends Application {
             new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(final ActionEvent e) {
+                	FileChooser fileChooser = new FileChooser();
                     File file = fileChooser.showOpenDialog(stage);
                     if (file != null) {
                     	// TODO: replace me
@@ -229,6 +234,7 @@ public class FrontEnd extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
+                    	FileChooser fileChooser = new FileChooser();
                         File file = fileChooser.showSaveDialog(stage);
                         if (file != null) {
                         	// TODO: replace me
@@ -246,7 +252,7 @@ public class FrontEnd extends Application {
 	
 	
 	// Left Center: Menu List
-	public VBox leftCenterList() {
+	private VBox leftCenterList() {
 		VBox vbLeftCenter = new VBox(5);
 		Text text = new Text(TITLE_LEFT);
 		text.setId("textstyle");
@@ -356,7 +362,7 @@ public class FrontEnd extends Application {
 	
 	
 	// Left Left & Right: Just Padding
-	public VBox vertPadding() {
+	private VBox vertPadding() {
 		VBox vbPad = new VBox();
 		vbPad.setPrefWidth(100);
 		vbPad.getStyleClass().add("pane");
@@ -367,7 +373,7 @@ public class FrontEnd extends Application {
 	private TextField txtSearchField = new TextField();
 	
 	// Left Bottom: Filters
-	public VBox leftBottomPane() {
+	private VBox leftBottomPane() {
 		filterCnt = 0;
 		filterPane = new VBox(10);
 		filterPane.setPrefHeight(200);
@@ -393,13 +399,13 @@ public class FrontEnd extends Application {
 	}
 	
 	// Filter Row instance
-	public HBox getFilterRow() {
+	private HBox getFilterRow() {
 		filterCnt += 1;
 		
 		HBox filters = new HBox(40);
 		filters.setAlignment(Pos.CENTER);
 		Button btn1 = new Button("+");
-		btn1.setTooltip(new Tooltip("Click to add another filter!"));
+		btn1.setTooltip(new Tooltip(tTipTxtAddFltr));
 		btn1.setId("plusbtn");
         
 		// Add another row
@@ -445,7 +451,7 @@ public class FrontEnd extends Application {
 	
 /* Center Border Pane (buttons to add/remove) */
 
-    public AnchorPane addCenter() {
+    private AnchorPane addCenter() {
     	AnchorPane center = new AnchorPane();
     	
     	Button btn1 = new Button(BTN_ADD_SEL);
@@ -463,7 +469,7 @@ public class FrontEnd extends Application {
 
 /* Right Border Pane */
     
-    public BorderPane getRightPane() {
+    private BorderPane getRightPane() {
     	BorderPane rightPane = new BorderPane();
     	
     	// Header
@@ -514,7 +520,7 @@ public class FrontEnd extends Application {
     	textFoot.setId("textstyle");
     	bottomBox.getChildren().add(textFoot);
     	// Label
-    	Label label = new Label("Assemble your menu to learn its nutrition!");
+    	Label label = new Label(lblTxtAssemble);
     	label.setWrapText(true);
     	label.getStyleClass().add("gray");
     	label.setFont(new Font("Arial Black", 18));
@@ -532,7 +538,7 @@ public class FrontEnd extends Application {
     	return rightPane;
     }
 
-	public HBox addHBox(String str)
+	private HBox addHBox(String str)
 	{
 		HBox hbox = new HBox(300);
 		hbox.setAlignment(Pos.CENTER);
