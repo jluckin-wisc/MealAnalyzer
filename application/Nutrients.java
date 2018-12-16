@@ -1,12 +1,12 @@
 package application;
 
 public enum Nutrients {
-	NUTRIENTS ("Nutrient"),
 	CALORIES ("Calories"),
 	CARBS ("Carbohydrate"),
 	FAT ("Fat"),
 	PROTEIN ("Protein"),
-	FIBER ("Fiber");
+	FIBER ("Fiber"); //,
+//	NUTRIENT ("Nutrient");
 	
 	private final String name;
 	Nutrients(String name) {

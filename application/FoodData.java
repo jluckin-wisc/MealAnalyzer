@@ -38,7 +38,9 @@ public class FoodData implements FoodDataADT<FoodItem> {
         indexes = new HashMap<String, BPTree<Double, FoodItem>>();
         
         for (Nutrients n : Nutrients.values()) {
-        	indexes.put(n.getName(), new BPTree<Double, FoodItem>(5));
+        	if(!n.getName().equals("Nutrient")) {
+        		indexes.put(n.getName(), new BPTree<Double, FoodItem>(5));
+        	}
         }
     }
     

@@ -93,13 +93,15 @@ public class FrontEnd extends Application {
 	final static String PROMPT_ENTER_VAL	= "Enter Value...";
 
 	final static String FTR_1				= "v0.1";
-	final static String FTR_2				= "� 2018 Group Twelve";
+	final static String FTR_2				= "\u00a9 2018 Group Twelve";
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
-	final static String lblTxtAssemble		= "Assemble your menu to learn its nutrition!";
-	final static String tTipTxtAddFltr		= "Click to add another filter!";
+	final static String LBL_TXT_ASSEMBLE	= "Assemble your menu to learn its nutrition!";
+	final static String TIP_ADD_FILTER		= "Click to add another filter!";
 	
+	final static String DEFAULT_NUTRIENT	= "Nutrient";
+	final static String DEFAULT_COMP		= "Comparator";
 	
 	private FoodData foodData;
 	private ObservableList<FoodItem> filteredFoodItems;
@@ -405,7 +407,7 @@ public class FrontEnd extends Application {
 		HBox filters = new HBox(40);
 		filters.setAlignment(Pos.CENTER);
 		Button btn1 = new Button("+");
-		btn1.setTooltip(new Tooltip(tTipTxtAddFltr));
+		btn1.setTooltip(new Tooltip(TIP_ADD_FILTER));
 		btn1.setId("plusbtn");
         
 		// Add another row
@@ -430,15 +432,17 @@ public class FrontEnd extends Application {
 		List<String> nutNames = Stream.of(Nutrients.values())
                 .map(Nutrients::getName)
                 .collect(Collectors.toList());
+		nutNames.add(0, DEFAULT_NUTRIENT);
 		cb1.getItems().setAll(nutNames);
-		cb1.setValue("Nutrient");
+		cb1.setValue(DEFAULT_NUTRIENT);
 		
 		ChoiceBox<String> cb2 = new ChoiceBox<String>();
 		List<String> comps = Stream.of(Comparators.values())
                 .map(Comparators::toString)
                 .collect(Collectors.toList());
+		comps.add(0, DEFAULT_COMP);
 		cb2.getItems().setAll(comps);
-		cb2.setValue("Comparator");
+		cb2.setValue(DEFAULT_COMP);
 		
 		TextField compValue = new TextField();
 		compValue.setPromptText(PROMPT_ENTER_VAL);
@@ -520,7 +524,7 @@ public class FrontEnd extends Application {
     	textFoot.setId("textstyle");
     	bottomBox.getChildren().add(textFoot);
     	// Label
-    	Label label = new Label(lblTxtAssemble);
+    	Label label = new Label(LBL_TXT_ASSEMBLE);
     	label.setWrapText(true);
     	label.getStyleClass().add("gray");
     	label.setFont(new Font("Arial Black", 18));
