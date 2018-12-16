@@ -14,12 +14,17 @@
 package application;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -86,9 +91,14 @@ public class FrontEnd extends Application {
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
+	private FoodData foodData;
+	private ObservableList<FoodItem> filteredFoodItems;
+	
 	@Override
 	public void start(Stage primaryStage) {
-
+		foodData = new FoodData();
+		filteredFoodItems = FXCollections.observableArrayList();
+		
 		Scene scene = new Scene(mainPanes, 1600, 900);
 		
 		
@@ -115,8 +125,10 @@ public class FrontEnd extends Application {
 		stage = primaryStage;
 	}
 
+	private Button btnExit;
+	
 	// Header
-	public static HBox headerHBox(String appTitle) {
+	public HBox headerHBox(String appTitle) {
 		
 		HBox header = new HBox();
 		header.setPadding(new Insets(5, 5, 5, 5));
@@ -131,16 +143,24 @@ public class FrontEnd extends Application {
 		title.getChildren().add(headerText);
 		
 		// Exit Button
-		Button btn1 = new Button(BTN_EXIT);
-		btn1.setId("tallbtn");
+		btnExit = new Button(BTN_EXIT);
+		btnExit.setId("tallbtn");
+		btnExit.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				Platform.exit();
+			}
+			
+		});
 		
-		header.getChildren().addAll(title, btn1);
+		header.getChildren().addAll(title, btnExit);
 		header.getStyleClass().add("dark");
 		return header;
 	}
 	
 /* Left Border Pane */
-	public static BorderPane setupLeftPanes() {
+	public BorderPane setupLeftPanes() {
 		leftPanes = new BorderPane();
 		
 		leftPanes.setTop(leftTopPane());
@@ -155,23 +175,28 @@ public class FrontEnd extends Application {
 		return leftPanes;
 		
 	}
+	
+	private Button btnLoadFile;
+	private Button btnAddItem;
+	private Button btnSaveList;
+	
 	// Left Top: Load/Add Buttons
-	public static HBox leftTopPane() {
+	public HBox leftTopPane() {
 		HBox buttons = new HBox(25);
 		buttons.setPadding(new Insets(5, 5, 5, 5));
-		Button btn1 = new Button(BTN_LOAD_FILE);
-		btn1.setTextAlignment(TextAlignment.CENTER);
-		Button btn2 = new Button(BTN_ADD_ITEM);
-		btn2.setTextAlignment(TextAlignment.CENTER);
-		Button btn3 = new Button(BTN_SAVE_LIST);
-		btn3.setTextAlignment(TextAlignment.CENTER);
-		btn1.setId("tallbtn");
-		btn2.setId("tallbtn");
-		btn3.setId("tallbtn");
+		Button btnLoadFile = new Button(BTN_LOAD_FILE);
+		btnLoadFile.setTextAlignment(TextAlignment.CENTER);
+		Button btnAddItem = new Button(BTN_ADD_ITEM);
+		btnAddItem.setTextAlignment(TextAlignment.CENTER);
+		Button btnSaveList = new Button(BTN_SAVE_LIST);
+		btnSaveList.setTextAlignment(TextAlignment.CENTER);
+		btnLoadFile.setId("tallbtn");
+		btnAddItem.setId("tallbtn");
+		btnSaveList.setId("tallbtn");
 		buttons.setAlignment(Pos.TOP_CENTER);
 		
 		// Load File Handler
-        btn1.setOnAction(
+		btnLoadFile.setOnAction(
             new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(final ActionEvent e) {
@@ -179,6 +204,9 @@ public class FrontEnd extends Application {
                     if (file != null) {
                     	// TODO: replace me
                         System.out.println("Opening File: " + file.getName());
+                        foodData.loadFoodItems(file.getPath());
+                        filteredFoodItems.clear();
+                        filteredFoodItems.addAll(foodData.getAllFoodItems());
                     }
                 }
             });
@@ -186,7 +214,7 @@ public class FrontEnd extends Application {
         // Add Item Handler
         
         // Save List Handler
-        btn3.setOnAction(
+		btnSaveList.setOnAction(
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
@@ -194,19 +222,20 @@ public class FrontEnd extends Application {
                         if (file != null) {
                         	// TODO: replace me
                             System.out.println("Saving File: " + file.getName());
+                            foodData.saveFoodItems(file.getPath());
                         }
                     }
                 });
 		
-		buttons.getChildren().addAll(btn1, btn2, btn3);
+		buttons.getChildren().addAll(btnLoadFile, btnAddItem, btnSaveList);
 		buttons.setId("hbox");
 		buttons.getStyleClass().add("pane");
 		return buttons;
 	}
 	
-	// Left Center: Menu List
 	
-	public static VBox leftCenterList() {
+	// Left Center: Menu List
+	public VBox leftCenterList() {
 		VBox vbLeftCenter = new VBox(5);
 		Text text = new Text(TITLE_LEFT);
 		text.setId("textstyle");
@@ -214,16 +243,18 @@ public class FrontEnd extends Application {
 		vbLeftCenter.getChildren().add(text);
 		vbLeftCenter.setPrefWidth(500);
 
-		ListView<String> nameList = new ListView<>();
-		nameList.setItems(BackEnd.getTestData().sorted());
+		ListView<FoodItem> nameList = new ListView<>();
+		//nameList.setItems(BackEnd.getTestData().sorted());
+	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
+		nameList.setItems(filteredFoodItems);
 		vbLeftCenter.getChildren().add(nameList);
 		
 		HBox buttons = new HBox(25);
-		Button btn1 = new Button(BTN_CLR_FLTRS);
-		Button btn2 = new Button(BTN_APPLY_FLTRS);
+		Button btnClearFilters = new Button(BTN_CLR_FLTRS);
+		Button btnApplyFilters = new Button(BTN_APPLY_FLTRS);
 		
 		// Clear Filters
-        btn1.setOnAction(
+		btnClearFilters.setOnAction(
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
@@ -232,8 +263,33 @@ public class FrontEnd extends Application {
                     }
                 });
 		
+        // Apply Filters
+		btnApplyFilters.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				String textFieldSearchName = txtSearchField.getText();
+				List<FoodItem> foodItemsMatchingText = new ArrayList<FoodItem>();
+				foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
+				List<String> rules = new ArrayList<String>();
+				for (HBox filterRow : filterRows) {
+					// get a rule from each row
+				}
+				
+				List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
+				foodItemsMatchingRules = foodData.filterByNutrients(rules);
+				
+				Set<FoodItem> filteredSet = new HashSet<FoodItem>();
+				filteredSet.addAll(foodItemsMatchingRules);
+				filteredSet.addAll(foodItemsMatchingText);
+				
+				filteredFoodItems.addAll(filteredSet);
+			}
+        	
+        });
+        
 		buttons.setAlignment(Pos.TOP_CENTER);
-		buttons.getChildren().addAll(btn1, btn2);
+		buttons.getChildren().addAll(btnClearFilters, btnApplyFilters);
 		buttons.setId("hbox");
 		vbLeftCenter.getChildren().add(buttons);
 		
@@ -280,15 +336,18 @@ public class FrontEnd extends Application {
 	
 	
 	// Left Left & Right: Just Padding
-	public static VBox vertPadding() {
+	public VBox vertPadding() {
 		VBox vbPad = new VBox();
 		vbPad.setPrefWidth(100);
 		vbPad.getStyleClass().add("pane");
 		return vbPad;
 	}
 	
+	private List<HBox> filterRows;
+	private TextField txtSearchField = new TextField();
+	
 	// Left Bottom: Filters
-	public static VBox leftBottomPane() {
+	public VBox leftBottomPane() {
 		filterCnt = 0;
 		filterPane = new VBox(10);
 		filterPane.setPrefHeight(200);
@@ -297,12 +356,16 @@ public class FrontEnd extends Application {
 		HBox searchBox = new HBox();
 		searchBox.setId("searchpad");
 		
-		final TextField searchField = new TextField();
-		searchField.setPromptText(PROMPT_SEARCH);
-		searchField.setPrefColumnCount(30);
-		searchBox.getChildren().add(searchField);
+		//final TextField searchField = new TextField();
+		txtSearchField = new TextField();
+		txtSearchField.setPromptText(PROMPT_SEARCH);
+		txtSearchField.setPrefColumnCount(30);
+		searchBox.getChildren().add(txtSearchField);
 		
-		filterPane.getChildren().addAll(searchBox, getFilterRow());
+		filterRows = new ArrayList<HBox>();
+		filterRows.add(getFilterRow());
+		
+		filterPane.getChildren().addAll(searchBox, filterRows.get(0));
 
 		
 		filterPane.getStyleClass().add("pane");
@@ -310,7 +373,7 @@ public class FrontEnd extends Application {
 	}
 	
 	// Filter Row instance
-	public static HBox getFilterRow() {
+	public HBox getFilterRow() {
 		filterCnt += 1;
 		
 		HBox filters = new HBox(40);
@@ -326,7 +389,10 @@ public class FrontEnd extends Application {
                     public void handle(final ActionEvent e) {
                     	if(filterCnt <= 2) {
                         	// TODO: check for valid values
-                            filterPane.getChildren().add(getFilterRow());
+                            //filterPane.getChildren().add(getFilterRow());
+                    		HBox newRow = getFilterRow();
+                    		filterRows.add(newRow);
+                    		filterPane.getChildren().add(newRow);
                     	}
                     }
                 });
@@ -359,7 +425,7 @@ public class FrontEnd extends Application {
 	
 /* Center Border Pane (buttons to add/remove) */
 
-    public static AnchorPane addCenter() {
+    public AnchorPane addCenter() {
     	AnchorPane center = new AnchorPane();
     	
     	Button btn1 = new Button(BTN_ADD_SEL);
@@ -377,7 +443,7 @@ public class FrontEnd extends Application {
 
 /* Right Border Pane */
     
-    public static BorderPane getRightPane() {
+    public BorderPane getRightPane() {
     	BorderPane rightPane = new BorderPane();
     	
     	// Header
@@ -446,7 +512,7 @@ public class FrontEnd extends Application {
     	return rightPane;
     }
 
-	public static HBox addHBox(String str)
+	public HBox addHBox(String str)
 	{
 		HBox hbox = new HBox(300);
 		hbox.setAlignment(Pos.CENTER);

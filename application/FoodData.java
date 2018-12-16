@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javafx.collections.FXCollections;
+
 /**
  * This class represents the backend for managing all 
  * the operations associated with FoodItems
@@ -56,7 +58,8 @@ public class FoodData implements FoodDataADT<FoodItem> {
 					FoodItem foodItem = new FoodItem(id, name);
 					
 					for (int i = 3; i < parts.length; i += 2) {
-						String nutrient = parts[i - 1].toLowerCase();
+						//String nutrient = parts[i - 1].toLowerCase();
+						String nutrient = Nutrients.getFromText(parts[i-1]);
 						double value = Double.parseDouble(parts[i]);
 						foodItem.addNutrient(nutrient, value);
 					}
