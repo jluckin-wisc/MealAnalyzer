@@ -360,7 +360,10 @@ public class FrontEnd extends Application {
 				}
 				
 				//Displaying the filtered list
-				nameList.setItems(filteredFoodItemsList);				
+				nameList.setItems(filteredFoodItemsList);
+				
+				//TODO We need to add the size of filteredFoodItemsList
+				//to the GUI
 			}
         	
         });
