@@ -351,10 +351,6 @@ public class FrontEnd extends Application {
 					}
 				}
 				
-//TODO Remove			
-for(int i=0; i <rules.size(); i++) {
-	System.out.println(rules.get(i));
-}
 
 				if(nutFiltered) {
 					List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
