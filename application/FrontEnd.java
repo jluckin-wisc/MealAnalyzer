@@ -15,6 +15,8 @@ package application;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -207,6 +209,19 @@ public class FrontEnd extends Application {
                         foodData.loadFoodItems(file.getPath());
                         filteredFoodItems.clear();
                         filteredFoodItems.addAll(foodData.getAllFoodItems());
+                        
+                        Comparator<FoodItem> alphaOrder = (f1, f2) -> {
+                        	//System.out.println(f1.getName().compareTo(f2.getName()));
+                        	return f1.getName().compareTo(f2.getName());};
+                                          	
+                        	
+                        	
+                        //filteredFoodItems.sorted(alphaOrder);
+                        
+                        FXCollections.sort(filteredFoodItems, alphaOrder);
+//                        for(FoodItem f : filteredFoodItems) {
+//                        	System.out.println(f.getName());
+//                        }
                     }
                 }
             });

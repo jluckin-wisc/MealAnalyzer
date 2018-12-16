@@ -74,4 +74,7 @@ public class FoodItem {
         return nutrients.get(name);
     }
     
+    public String toString() {
+    	return this.name;
+    }
 }
