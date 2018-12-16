@@ -73,7 +73,12 @@ public class FoodItem {
     public double getNutrientValue(String name) {
         return nutrients.get(name);
     }
-    
+    /**
+     * Gets the toString of the food item which is just the name
+     * 
+     * @return String of the FoodItem's name
+     */
+    @Override
     public String toString() {
     	return this.name;
     }

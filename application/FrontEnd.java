@@ -96,6 +96,7 @@ public class FrontEnd extends Application {
 	private FoodData foodData;
 	private ObservableList<FoodItem> filteredFoodItems;
 	
+	
 	@Override
 	public void start(Stage primaryStage) {
 		foodData = new FoodData();
@@ -210,18 +211,13 @@ public class FrontEnd extends Application {
                         filteredFoodItems.clear();
                         filteredFoodItems.addAll(foodData.getAllFoodItems());
                         
+                        //Comparator to sort the list in alpha order
                         Comparator<FoodItem> alphaOrder = (f1, f2) -> {
-                        	//System.out.println(f1.getName().compareTo(f2.getName()));
                         	return f1.getName().compareTo(f2.getName());};
-                                          	
-                        	
-                        	
-                        //filteredFoodItems.sorted(alphaOrder);
-                        
+
+                        //Sorting list in alpha order
                         FXCollections.sort(filteredFoodItems, alphaOrder);
-//                        for(FoodItem f : filteredFoodItems) {
-//                        	System.out.println(f.getName());
-//                        }
+
                     }
                 }
             });
@@ -273,7 +269,8 @@ public class FrontEnd extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
-                    	// TODO: clear data structure?
+                    	//Reseting nameList to filteredFoodItems
+                    	nameList.setItems(filteredFoodItems);
                         leftPanes.setBottom(leftBottomPane());
                     }
                 });
@@ -297,8 +294,16 @@ public class FrontEnd extends Application {
 				Set<FoodItem> filteredSet = new HashSet<FoodItem>();
 				filteredSet.addAll(foodItemsMatchingRules);
 				filteredSet.addAll(foodItemsMatchingText);
+				ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
+
 				
-				filteredFoodItems.addAll(filteredSet);
+				for(FoodItem f :foodItemsMatchingText) {
+					filteredObservableList.add(f);
+				}
+
+				nameList.setItems(filteredObservableList);
+				
+				
 			}
         	
         });
