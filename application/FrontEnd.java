@@ -104,13 +104,21 @@ public class FrontEnd extends Application {
 	final static String DEFAULT_COMP		= "Comparator";
 	
 	private FoodData foodData;
-	private ObservableList<FoodItem> filteredFoodItems;
+	//All food items
+	private ObservableList<FoodItem> foodItems; 
 	
+	//Food items that match filters
+	private ObservableList<FoodItem> filteredFoodItemsList;
+	
+	//TODO Add this to GUI
+	private int filteredFoodItemsListCount;
 	
 	@Override
 	public void start(Stage primaryStage) {
 		foodData = new FoodData();
-		filteredFoodItems = FXCollections.observableArrayList();
+		foodItems = FXCollections.observableArrayList();
+		filteredFoodItemsList = FXCollections.observableArrayList();
+		int filteredFoodItemsListCount=0;
 		
 		Scene scene = new Scene(mainPanes, 1600, 900);
 		
@@ -215,15 +223,16 @@ public class FrontEnd extends Application {
                     	// TODO: replace me
                         System.out.println("Opening File: " + file.getName());
                         foodData.loadFoodItems(file.getPath());
-                        filteredFoodItems.clear();
-                        filteredFoodItems.addAll(foodData.getAllFoodItems());
+                        foodItems.clear();
+                        foodItems.addAll(foodData.getAllFoodItems());
                         
                         //Comparator to sort the list in alpha order
                         Comparator<FoodItem> alphaOrder = (f1, f2) -> {
                         	return f1.getName().compareTo(f2.getName());};
 
                         //Sorting list in alpha order
-                        FXCollections.sort(filteredFoodItems, alphaOrder);
+                        FXCollections.sort(foodItems, alphaOrder);
+                        filteredFoodItemsListCount = foodItems.size();
 
                     }
                 }
@@ -265,7 +274,7 @@ public class FrontEnd extends Application {
 		ListView<FoodItem> nameList = new ListView<>();
 		//nameList.setItems(BackEnd.getTestData().sorted());
 	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
-		nameList.setItems(filteredFoodItems);
+		nameList.setItems(foodItems);
 		vbLeftCenter.getChildren().add(nameList);
 		
 		HBox buttons = new HBox(25);
@@ -278,7 +287,9 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	//Reseting nameList to filteredFoodItems
-                    	nameList.setItems(filteredFoodItems);
+                    	filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
+                    	nameList.setItems(foodItems);
+                    	filteredFoodItemsListCount = foodItems.size();
                         leftPanes.setBottom(leftBottomPane());
                     }
                 });
@@ -288,30 +299,86 @@ public class FrontEnd extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
+				//Reseting oberservable list
+				filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
 				String textFieldSearchName = txtSearchField.getText();
+				
+				//List to store items matching name
 				List<FoodItem> foodItemsMatchingText = new ArrayList<FoodItem>();
-				foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
-				List<String> rules = new ArrayList<String>();
-				for (HBox filterRow : filterRows) {
-					// get a rule from each row
+				
+				
+				
+				//If filters is empty then just return
+				if(!textFieldSearchName.equals("")) {
+					foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
+					ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
+					for(FoodItem f :foodItemsMatchingText) {
+						filteredObservableList.add(f);
+				}
+					filteredFoodItemsList = filteredObservableList;
+					
+				}
+				else {
+					filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
 				}
 				
-				List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
-				foodItemsMatchingRules = foodData.filterByNutrients(rules);
 				
-				Set<FoodItem> filteredSet = new HashSet<FoodItem>();
-				filteredSet.addAll(foodItemsMatchingRules);
-				filteredSet.addAll(foodItemsMatchingText);
-				ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
-
-				
-				for(FoodItem f :foodItemsMatchingText) {
-					filteredObservableList.add(f);
+				ArrayList<String> rules = new ArrayList<String>();
+				ArrayList<String> enums = new ArrayList<String>();
+				for(int i=0; i<Nutrients.values().length;i++) {
+					enums.add(Nutrients.values()[i].getName());
 				}
+				for(int i=0; i<Comparators.values().length;i++) {
+					enums.add(Comparators.values()[i].toString());
+				}
+				
+				enums.remove(Comparators.COMPARATOR.toString());
+				
+				boolean nutFiltered = false;
+				for(int i =0; i < filterRows.size(); i++) {
+					String ruleString = "";
+					for(int j = 0; j<filterRows.get(i).getChildren().size();j++) {
+						
+						if(filterRows.get(i).getChildren().get(j).getClass() == ChoiceBox.class) {
+							ChoiceBox comp = (ChoiceBox) filterRows.get(i).getChildren().get(j);
 
-				nameList.setItems(filteredObservableList);
+							String compValue = ""+ comp.getValue();
+
+							if(!enums.contains(compValue)) {
+								ruleString += " null";
+							} else {
+								ruleString += " "+ comp.getValue();
+								nutFiltered = true;
+							}								
+							
+						}
+						if(filterRows.get(i).getChildren().get(j).getClass() == TextField.class) {
+							TextField amount = (TextField) filterRows.get(i).getChildren().get(j);
+							//System.out.println(amount.getText());
+							ruleString += " "+ amount.getText();
+						}
+						
+					}
+					if(!ruleString.equals("")) {
+						rules.add(ruleString);
+					}
+				}
+				
+
+				if(nutFiltered) {
+					List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
+					foodItemsMatchingRules = foodData.filterByNutrients(rules);
+				
+					filteredFoodItemsList.retainAll(foodItemsMatchingRules);
+				}
+				
+				//Displaying the filtered list
+				nameList.setItems(filteredFoodItemsList);
+				filteredFoodItemsListCount = filteredFoodItemsList.size();
 				
 				
+				//TODO We need to add the size of filteredFoodItemsList
+				//to the GUI
 			}
         	
         });
