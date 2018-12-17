@@ -570,15 +570,8 @@ public class FrontEnd extends Application {
     	Text textFoot = new Text(TITLE_RESULTS);
     	textFoot.setId("textstyle");
     	bottomBox.getChildren().add(textFoot);
+    	
     	// Label
-    	/*Label label = new Label("Assemble your menu to learn its nutrition!");
-    	label.setWrapText(true);
-    	label.getStyleClass().add("gray");
-    	label.setFont(new Font("Arial Black", 18));
-    	label.setTextFill(Color.web("#ffffff"));
-    	label.setTextAlignment(TextAlignment.CENTER);
-    	label.setPrefHeight(140);
-    	label.setPrefWidth(450);*/
     	lblNutrition = new Label();
     	setMenuNutritionLabel(lblNutrition, "Assemble your menu to learn its nutrition!", false);
 
@@ -595,7 +588,8 @@ public class FrontEnd extends Application {
     	lblNutrition.setText(text);
     	lblNutrition.setWrapText(true);
     	lblNutrition.getStyleClass().add("gray");
-    	lblNutrition.setFont(new Font("Consolas", 18));
+    	//lblNutrition.setFont(new Font("Consolas", 18));
+    	lblNutrition.setStyle("-fx-font-family:Consolas");
     	lblNutrition.setTextFill(Color.web("#ffffff"));
     	if (nutritionData) {
     		lblNutrition.setTextAlignment(TextAlignment.LEFT);
