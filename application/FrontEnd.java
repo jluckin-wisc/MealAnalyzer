@@ -14,6 +14,8 @@
 package application;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,6 +79,8 @@ public class FrontEnd extends Application {
 	final static String BTN_ADD_ITEM 		= "Add Item\nto List";
 	final static String BTN_SAVE_LIST		= "Save List\nto File";
 	
+	final static String BTN_NEW_ITEM		= "Add New Item";
+	
 	final static String BTN_APPLY_FLTRS		= "Apply Filters";
 	final static String BTN_CLR_FLTRS		= "Clear Filters";
 	
@@ -93,10 +97,20 @@ public class FrontEnd extends Application {
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
-	private FoodData foodData;
-	//All food items
-	private ObservableList<FoodItem> foodItems; 
+
+	final static String LBL_TXT_ASSEMBLE	= "Assemble your menu to learn its nutrition!";
+	final static String TIP_ADD_FILTER		= "Click to add another filter!";
 	
+	final static String DEFAULT_NUTRIENT	= "Nutrient";
+	final static String DEFAULT_COMP		= "Comparator";
+	
+	// ints to use in GUI
+	final static int LIST_WIDTH				= 500;
+	final static int ADD_ITEM_SPACING		= 20;
+	
+	private static FoodData foodData;
+	//All food items
+	private ObservableList<FoodItem> foodItems;
 	//Food items that match filters
 	private ObservableList<FoodItem> filteredFoodItemsList;
 	
@@ -114,6 +128,20 @@ public class FrontEnd extends Application {
 		int filteredFoodItemsListCount=0;
 		menuList = new ListView<>();
 		names = FXCollections.observableArrayList();
+		
+		// start with some data
+		try {
+			// open default file
+			File file = new File("foodItems.csv");
+			System.out.println(file.toString());
+			
+			foodData.loadFoodItems(file.toPath().toString());
+			sortFoodData();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		Scene scene = new Scene(mainPanes, 1600, 900);
 		
@@ -142,6 +170,18 @@ public class FrontEnd extends Application {
 	}
 
 	private Button btnExit;
+	
+	private void sortFoodData() {
+        foodItems.clear();
+        foodItems.addAll(foodData.getAllFoodItems());
+        
+        //Comparator to sort the list in alpha order
+        Comparator<FoodItem> alphaOrder = (f1, f2) -> {
+        	return f1.getName().compareTo(f2.getName());};
+
+        //Sorting list in alpha order
+        FXCollections.sort(foodItems, alphaOrder);
+	}
 	
 	// Header
 	public HBox headerHBox(String appTitle) {
@@ -219,35 +259,125 @@ public class FrontEnd extends Application {
                     File file = fileChooser.showOpenDialog(stage);
                     if (file != null) {
                     	foodData.loadFoodItems(file.getPath());
-                        foodItems.clear();
-                        foodItems.addAll(foodData.getAllFoodItems());
-                        
-                        //Comparator to sort the list in alpha order
-                        Comparator<FoodItem> alphaOrder = (f1, f2) -> {
-                        	return f1.getName().compareTo(f2.getName());};
-
-                        //Sorting list in alpha order
-                        FXCollections.sort(foodItems, alphaOrder);
-                        filteredFoodItemsListCount = foodItems.size();
-
+                      sortFoodData();
                     }
                 }
             });
         
         // Add Item Handler
-        
-        // Save List Handler
-		btnSaveList.setOnAction(
+		btnAddItem.setOnAction(
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
-                        File file = fileChooser.showSaveDialog(stage);
-                        if (file != null) {  
-                            System.out.println("Saving File: " + file.getName());
-                            foodData.saveFoodItems(file.getPath());
-                        }
+                    	VBox addItemVBox = new VBox(10);
+                    	addItemVBox.setPrefWidth(500);
+                    	addItemVBox.setAlignment(Pos.CENTER);
+                    	Button btnNewItem = new Button(BTN_NEW_ITEM);
+                    	
+                    	Label label1 = new Label("       ID:");
+                    	TextField tF1 = new TextField ();
+                    	HBox hb1 = new HBox(ADD_ITEM_SPACING);
+                    	hb1.setAlignment(Pos.CENTER);
+                    	hb1.getChildren().addAll(label1, tF1);
+                    	
+                    	Label label2 = new Label("    Name:");
+                    	TextField tF2 = new TextField ();
+                    	HBox hb2 = new HBox(ADD_ITEM_SPACING);
+                    	hb2.setAlignment(Pos.CENTER);
+                    	hb2.getChildren().addAll(label2, tF2);
+                    	
+                    	Label label3 = new Label("Calories:");
+                    	TextField tF3 = new TextField ();
+                    	HBox hb3 = new HBox(ADD_ITEM_SPACING);
+                    	hb3.setAlignment(Pos.CENTER);
+                    	hb3.getChildren().addAll(label3, tF3);
+                    
+                    	Label label4 = new Label("   Carbs:");
+                    	TextField tF4 = new TextField ();
+                    	HBox hb4 = new HBox(ADD_ITEM_SPACING);
+                    	hb4.setAlignment(Pos.CENTER);
+                    	hb4.getChildren().addAll(label4, tF4);
+                    	
+                    	Label label5 = new Label("      Fat:");
+                    	TextField tF5 = new TextField ();
+                    	HBox hb5 = new HBox(ADD_ITEM_SPACING);
+                    	hb5.setAlignment(Pos.CENTER);
+                    	hb5.getChildren().addAll(label5, tF5);
+                    	
+                    	Label label6 = new Label(" Protein:");
+                    	TextField tF6 = new TextField ();
+                    	HBox hb6 = new HBox(ADD_ITEM_SPACING);
+                    	hb6.setAlignment(Pos.CENTER);
+                    	hb6.getChildren().addAll(label6, tF6);
+                    	
+                    	Label label7 = new Label("   Fiber:");
+                    	TextField tF7 = new TextField ();
+                    	HBox hb7 = new HBox(ADD_ITEM_SPACING);
+                    	hb7.setAlignment(Pos.CENTER);
+                    	hb7.getChildren().addAll(label7, tF7);
+                    	
+                		btnNewItem.setOnAction(
+                            new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(final ActionEvent e) {
+                                	ArrayList<TextField> values = new ArrayList<TextField>();
+                                	values.add(tF1);
+                                	values.add(tF2);
+                                	values.add(tF3);
+                                	values.add(tF4);
+                                	values.add(tF5);
+                                	values.add(tF6);
+                                	values.add(tF7);
+                                	
+                                	//TextField[] values = { tF1, tF2, tF3, tF4, tF5, tF6, tF7 };
+                                	boolean validNut = true;
+                                	
+                                	for(int j = 2; j < values.size(); j++) {
+                                		TextField tRef = values.get(j);
+                                		String foundVal = tRef.getText();
+                                		if(!foundVal.matches("[0-9]*")) {
+                                			System.out.println(foundVal);
+                                			validNut = false;
+                                		}
+                                	}
+                                	if(validNut && (values.get(0) != null) && (values.get(1) != null)) {
+                                    	// create foodItem from data
+                                    	FoodItem addFood = new FoodItem(values.get(0).getText(), values.get(1).getText());
+                                    	int n = Nutrients.values().length;
+                                    	for(int i = 0; i < n; i++) {
+                                    		Double dblVal = Double.valueOf(values.get(i+2).getText());
+                                    		addFood.addNutrient(Nutrients.values()[i].getName(), dblVal);
+                                    	}
+                                    	//System.out.println(addFood.getNutrients().toString());
+                                    	
+                                    	// add foodItem to the foodData object & sort list again
+                                    	foodData.addFoodItem(addFood);
+                                    	sortFoodData();
+                                    	
+                                    	// return to the view of the list
+                                    	leftPanes.setCenter(leftCenterList());
+                                	}
+                                }
+                            });
+                		addItemVBox.getChildren().addAll(hb1, hb2, hb3, hb4, hb5, hb6, hb7, btnNewItem);
+                		leftPanes.setCenter(addItemVBox);
                     }
                 });
+		
+        // Save List Handler
+		btnSaveList.setOnAction(
+            new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(final ActionEvent e) {
+                	FileChooser fileChooser = new FileChooser();
+                    File file = fileChooser.showSaveDialog(stage);
+                    if (file != null) {
+                    	// TODO: replace me
+                        System.out.println("Saving File: " + file.getName());
+                        foodData.saveFoodItems(file.getPath());
+                    }
+                }
+            });
 		
 		buttons.getChildren().addAll(btnLoadFile, btnAddItem, btnSaveList);
 		buttons.setId("hbox");
@@ -453,15 +583,17 @@ public class FrontEnd extends Application {
 		List<String> nutNames = Stream.of(Nutrients.values())
                 .map(Nutrients::getName)
                 .collect(Collectors.toList());
+    nutNames.add(0, DEFAULT_NUTRIENT)
 		cb1.getItems().setAll(nutNames);
-		cb1.setValue("Nutrient");
+		cb1.setValue(DEFAULT_NUTRIENT);
 		
 		ChoiceBox<String> cb2 = new ChoiceBox<String>();
 		List<String> comps = Stream.of(Comparators.values())
                 .map(Comparators::toString)
                 .collect(Collectors.toList());
-		cb2.getItems().setAll(comps);
-		cb2.setValue("Comparator");
+		comps.add(0, DEFAULT_COMP)
+    cb2.getItems().setAll(comps);
+		cb2.setValue(DEFAULT_COMP);
 		
 		TextField compValue = new TextField();
 		compValue.setPromptText(PROMPT_ENTER_VAL);
@@ -616,6 +748,7 @@ public class FrontEnd extends Application {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
+		
 		launch(args);
 	}
 
