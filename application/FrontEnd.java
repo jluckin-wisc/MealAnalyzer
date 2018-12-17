@@ -57,21 +57,17 @@ import javafx.stage.Stage;
 
 public class FrontEnd extends Application {
 
-	// static areas that make up the basic structure of the app
 	static BorderPane mainPanes = new BorderPane();
 	static BorderPane leftPanes = new BorderPane();
 	static BorderPane rightPanes = new BorderPane();
 	static Stage stage = new Stage();
 	
-	// static GUI container references that need to be used elsewhere
-	static VBox filterPane;
+	static  FileChooser fileChooser = new FileChooser();
 	
-	
-	// static variables to track quantities, etc
 	static int filterCnt = 0;
 	
+	static VBox filterPane;
 	
-	// strings used in the GUI
 	final static String TITLE_HEADER 		= "        Awesome Foodie Dietplan App!";
 	final static String TITLE_LEFT 			= "Current Food List";
 	final static String TITLE_RIGHT 		= "Current Menu";
@@ -97,10 +93,11 @@ public class FrontEnd extends Application {
 	final static String PROMPT_ENTER_VAL	= "Enter Value...";
 
 	final static String FTR_1				= "v0.1";
-	final static String FTR_2				= "\u00a9 2018 Group Twelve";
+	final static String FTR_2				= "� 2018 Group Twelve";
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
+
 	final static String LBL_TXT_ASSEMBLE	= "Assemble your menu to learn its nutrition!";
 	final static String TIP_ADD_FILTER		= "Click to add another filter!";
 	
@@ -112,13 +109,25 @@ public class FrontEnd extends Application {
 	final static int ADD_ITEM_SPACING		= 20;
 	
 	private static FoodData foodData;
-	private static ObservableList<FoodItem> filteredFoodItems;
+	//All food items
+	private ObservableList<FoodItem> foodItems;
+	//Food items that match filters
+	private ObservableList<FoodItem> filteredFoodItemsList;
 	
+	//TODO Add this to GUI
+	private int filteredFoodItemsListCount;
+	private ListView<FoodItem> menuList;
+	private ObservableList<FoodItem> names;
+	private ListView<FoodItem> nameList;
 	
 	@Override
 	public void start(Stage primaryStage) {
 		foodData = new FoodData();
-		filteredFoodItems = FXCollections.observableArrayList();
+		foodItems = FXCollections.observableArrayList();
+		filteredFoodItemsList = FXCollections.observableArrayList();
+		int filteredFoodItemsListCount=0;
+		menuList = new ListView<>();
+		names = FXCollections.observableArrayList();
 		
 		// start with some data
 		try {
@@ -163,19 +172,19 @@ public class FrontEnd extends Application {
 	private Button btnExit;
 	
 	private void sortFoodData() {
-        filteredFoodItems.clear();
-        filteredFoodItems.addAll(foodData.getAllFoodItems());
+        foodItems.clear();
+        foodItems.addAll(foodData.getAllFoodItems());
         
         //Comparator to sort the list in alpha order
         Comparator<FoodItem> alphaOrder = (f1, f2) -> {
         	return f1.getName().compareTo(f2.getName());};
 
         //Sorting list in alpha order
-        FXCollections.sort(filteredFoodItems, alphaOrder);
+        FXCollections.sort(foodItems, alphaOrder);
 	}
 	
 	// Header
-	private HBox headerHBox(String appTitle) {
+	public HBox headerHBox(String appTitle) {
 		
 		HBox header = new HBox();
 		header.setPadding(new Insets(5, 5, 5, 5));
@@ -207,7 +216,7 @@ public class FrontEnd extends Application {
 	}
 	
 /* Left Border Pane */
-	private BorderPane setupLeftPanes() {
+	public BorderPane setupLeftPanes() {
 		leftPanes = new BorderPane();
 		
 		leftPanes.setTop(leftTopPane());
@@ -223,8 +232,12 @@ public class FrontEnd extends Application {
 		
 	}
 	
+	private Button btnLoadFile;
+	private Button btnAddItem;
+	private Button btnSaveList;
+	
 	// Left Top: Load/Add Buttons
-	private HBox leftTopPane() {
+	public HBox leftTopPane() {
 		HBox buttons = new HBox(25);
 		buttons.setPadding(new Insets(5, 5, 5, 5));
 		Button btnLoadFile = new Button(BTN_LOAD_FILE);
@@ -243,12 +256,10 @@ public class FrontEnd extends Application {
             new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(final ActionEvent e) {
-                	FileChooser fileChooser = new FileChooser();
                     File file = fileChooser.showOpenDialog(stage);
                     if (file != null) {
-                    	// TODO: replace me
-                        System.out.println("Opening File: " + file.getName());
-                        foodData.loadFoodItems(file.getPath());
+                    	foodData.loadFoodItems(file.getPath());
+                      sortFoodData();
                     }
                 }
             });
@@ -350,7 +361,6 @@ public class FrontEnd extends Application {
                             });
                 		addItemVBox.getChildren().addAll(hb1, hb2, hb3, hb4, hb5, hb6, hb7, btnNewItem);
                 		leftPanes.setCenter(addItemVBox);
-                    	
                     }
                 });
 		
@@ -377,7 +387,7 @@ public class FrontEnd extends Application {
 	
 	
 	// Left Center: Menu List
-	private VBox leftCenterList() {
+	public VBox leftCenterList() {
 		VBox vbLeftCenter = new VBox(5);
 		Text text = new Text(TITLE_LEFT);
 		text.setId("textstyle");
@@ -385,10 +395,8 @@ public class FrontEnd extends Application {
 		vbLeftCenter.getChildren().add(text);
 		vbLeftCenter.setPrefWidth(500);
 
-		ListView<FoodItem> nameList = new ListView<>();
-		//nameList.setItems(BackEnd.getTestData().sorted());
-	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
-		nameList.setItems(filteredFoodItems);
+		nameList = new ListView<>();
+		nameList.setItems(foodItems);
 		vbLeftCenter.getChildren().add(nameList);
 		
 		HBox buttons = new HBox(25);
@@ -401,7 +409,9 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	//Reseting nameList to filteredFoodItems
-                    	nameList.setItems(filteredFoodItems);
+                    	filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
+                    	nameList.setItems(foodItems);
+                    	filteredFoodItemsListCount = foodItems.size();
                         leftPanes.setBottom(leftBottomPane());
                     }
                 });
@@ -411,30 +421,87 @@ public class FrontEnd extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
+				//Reseting oberservable list
+				filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
 				String textFieldSearchName = txtSearchField.getText();
+				
+				//List to store items matching name
 				List<FoodItem> foodItemsMatchingText = new ArrayList<FoodItem>();
-				foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
-				List<String> rules = new ArrayList<String>();
-				for (HBox filterRow : filterRows) {
-					// get a rule from each row
+				
+				
+				
+				//If filters is empty then just return
+				if(!textFieldSearchName.equals("")) {
+					foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
+					ObservableList<FoodItem> filteredObservableList = 
+							FXCollections.observableArrayList();
+					for(FoodItem f :foodItemsMatchingText) {
+						filteredObservableList.add(f);
+				}
+					filteredFoodItemsList = filteredObservableList;
+					
+				}
+				else {
+					filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
 				}
 				
-				List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
-				foodItemsMatchingRules = foodData.filterByNutrients(rules);
 				
-				Set<FoodItem> filteredSet = new HashSet<FoodItem>();
-				filteredSet.addAll(foodItemsMatchingRules);
-				filteredSet.addAll(foodItemsMatchingText);
-				ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
-
-				
-				for(FoodItem f :foodItemsMatchingText) {
-					filteredObservableList.add(f);
+				ArrayList<String> rules = new ArrayList<String>();
+				ArrayList<String> enums = new ArrayList<String>();
+				for(int i=0; i<Nutrients.values().length;i++) {
+					enums.add(Nutrients.values()[i].getName());
 				}
+				for(int i=0; i<Comparators.values().length;i++) {
+					enums.add(Comparators.values()[i].toString());
+				}
+				
+				enums.remove(Comparators.COMPARATOR.toString());
+				
+				boolean nutFiltered = false;
+				for(int i =0; i < filterRows.size(); i++) {
+					String ruleString = "";
+					for(int j = 0; j<filterRows.get(i).getChildren().size();j++) {
+						
+						if(filterRows.get(i).getChildren().get(j).getClass() == ChoiceBox.class) {
+							ChoiceBox comp = (ChoiceBox) filterRows.get(i).getChildren().get(j);
 
-				nameList.setItems(filteredObservableList);
+							String compValue = ""+ comp.getValue();
+
+							if(!enums.contains(compValue)) {
+								ruleString += " null";
+							} else {
+								ruleString += " "+ comp.getValue();
+								nutFiltered = true;
+							}								
+							
+						}
+						if(filterRows.get(i).getChildren().get(j).getClass() == TextField.class) {
+							TextField amount = (TextField) filterRows.get(i).getChildren().get(j);
+							//System.out.println(amount.getText());
+							ruleString += " "+ amount.getText();
+						}
+						
+					}
+					if(!ruleString.equals("")) {
+						rules.add(ruleString);
+					}
+				}
+				
+
+				if(nutFiltered) {
+					List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
+					foodItemsMatchingRules = foodData.filterByNutrients(rules);
+				
+					filteredFoodItemsList.retainAll(foodItemsMatchingRules);
+				}
+				
+				//Displaying the filtered list
+				nameList.setItems(filteredFoodItemsList);
+				filteredFoodItemsListCount = filteredFoodItemsList.size();
 				
 				
+				//TODO We need to add the size of filteredFoodItemsList
+				//to the GUI
 			}
         	
         });
@@ -448,46 +515,9 @@ public class FrontEnd extends Application {
 		return vbLeftCenter;
 	}
 	
-	// Left Center: Add
-	
-//	public static VBox leftCenterAdd() {
-//		VBox vbLeftCenter = new VBox(5);
-//		Text text = new Text(TITLE_LEFT);
-//		text.setId("textstyle");
-//		vbLeftCenter.setId("vbox");
-//		vbLeftCenter.getChildren().add(text);
-//		vbLeftCenter.setPrefWidth(500);
-//
-//		ListView<String> nameList = new ListView<>();
-//		nameList.setItems(BackEnd.getTestData().sorted());
-//		vbLeftCenter.getChildren().add(nameList);
-//		
-//		HBox buttons = new HBox(25);
-//		btnClear = new Button(BTN_CLR_FLTRS);
-//		Button btn2 = new Button(BTN_APPLY_FLTRS);
-//		
-//		// Clear Filters
-//        btnClear.setOnAction(
-//                new EventHandler<ActionEvent>() {
-//                    @Override
-//                    public void handle(final ActionEvent e) {
-//                    	// TODO: replace me
-//                        System.out.println("Clearing Filter");
-//                        leftPanes.setBottom(leftBottomPane());
-//                    }
-//                });
-//		buttons.setAlignment(Pos.TOP_CENTER);
-//		buttons.getChildren().addAll(btnClear, btn2);
-//		buttons.setId("hbox");
-//		vbLeftCenter.getChildren().add(buttons);
-//		
-//		vbLeftCenter.getStyleClass().add("pane");
-//		return vbLeftCenter;
-//	}
-	
 	
 	// Left Left & Right: Just Padding
-	private VBox vertPadding() {
+	public VBox vertPadding() {
 		VBox vbPad = new VBox();
 		vbPad.setPrefWidth(100);
 		vbPad.getStyleClass().add("pane");
@@ -498,7 +528,7 @@ public class FrontEnd extends Application {
 	private TextField txtSearchField = new TextField();
 	
 	// Left Bottom: Filters
-	private VBox leftBottomPane() {
+	public VBox leftBottomPane() {
 		filterCnt = 0;
 		filterPane = new VBox(10);
 		filterPane.setPrefHeight(200);
@@ -524,13 +554,13 @@ public class FrontEnd extends Application {
 	}
 	
 	// Filter Row instance
-	private HBox getFilterRow() {
+	public HBox getFilterRow() {
 		filterCnt += 1;
 		
 		HBox filters = new HBox(40);
 		filters.setAlignment(Pos.CENTER);
 		Button btn1 = new Button("+");
-		btn1.setTooltip(new Tooltip(TIP_ADD_FILTER));
+		btn1.setTooltip(new Tooltip("Click to add another filter!"));
 		btn1.setId("plusbtn");
         
 		// Add another row
@@ -539,8 +569,6 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	if(filterCnt <= 2) {
-                        	// TODO: check for valid values
-                            //filterPane.getChildren().add(getFilterRow());
                     		HBox newRow = getFilterRow();
                     		filterRows.add(newRow);
                     		filterPane.getChildren().add(newRow);
@@ -555,7 +583,7 @@ public class FrontEnd extends Application {
 		List<String> nutNames = Stream.of(Nutrients.values())
                 .map(Nutrients::getName)
                 .collect(Collectors.toList());
-		nutNames.add(0, DEFAULT_NUTRIENT);
+    nutNames.add(0, DEFAULT_NUTRIENT)
 		cb1.getItems().setAll(nutNames);
 		cb1.setValue(DEFAULT_NUTRIENT);
 		
@@ -563,8 +591,8 @@ public class FrontEnd extends Application {
 		List<String> comps = Stream.of(Comparators.values())
                 .map(Comparators::toString)
                 .collect(Collectors.toList());
-		comps.add(0, DEFAULT_COMP);
-		cb2.getItems().setAll(comps);
+		comps.add(0, DEFAULT_COMP)
+    cb2.getItems().setAll(comps);
 		cb2.setValue(DEFAULT_COMP);
 		
 		TextField compValue = new TextField();
@@ -578,7 +606,7 @@ public class FrontEnd extends Application {
 	
 /* Center Border Pane (buttons to add/remove) */
 
-    private AnchorPane addCenter() {
+    public AnchorPane addCenter() {
     	AnchorPane center = new AnchorPane();
     	
     	Button btn1 = new Button(BTN_ADD_SEL);
@@ -586,6 +614,19 @@ public class FrontEnd extends Application {
     	btn1.setTextAlignment(TextAlignment.CENTER);
     	btn1.setId("supertallbtn");
     	
+    	btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    		
+                    	names.addAll(nameList.getSelectionModel().
+                    			getSelectedItem());
+                    	
+
+                    	//Adding the window
+                    	menuList.setItems(names);
+                    }
+                });
     	AnchorPane.setTopAnchor(btn1, 160.0);
     	AnchorPane.setLeftAnchor(btn1, 30.0);
     	
@@ -596,7 +637,7 @@ public class FrontEnd extends Application {
 
 /* Right Border Pane */
     
-    private BorderPane getRightPane() {
+    public BorderPane getRightPane() {
     	BorderPane rightPane = new BorderPane();
     	
     	// Header
@@ -607,23 +648,38 @@ public class FrontEnd extends Application {
     	rightHeader.getChildren().add(text);
     	rightPane.setTop(rightHeader);
     	
+    
     	// Center
     	VBox rightCenter = new VBox(15);
     	rightCenter.setAlignment(Pos.TOP_CENTER);
     	rightCenter.setPrefWidth(500);
     	
-		ListView<String> menuList = new ListView<>();
-		ObservableList<String> names = FXCollections.observableArrayList();
+    	
+		menuList = new ListView<>();
+		names = FXCollections.observableArrayList();
 		menuList.setItems(names);
 		rightCenter.getChildren().add(menuList);
 		
 		HBox btnBox = new HBox(50);
 		btnBox.setAlignment(Pos.TOP_CENTER);
 		
+		
 		Button btn1 = new Button(BTN_REM_SEL);
     	btn1.setWrapText(true);
     	btn1.setTextAlignment(TextAlignment.CENTER);
     	btn1.setId("tallbtn");
+    	btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    	
+                    	names.removeAll(nameList.getSelectionModel().
+                    			getSelectedItem());
+                    	                    	
+                    	//Adding the window
+                    	menuList.setItems(names);
+                    }
+                });
     	
 		Button btn2 = new Button(BTN_CALC_MENU);
     	btn2.setWrapText(true);
@@ -647,7 +703,7 @@ public class FrontEnd extends Application {
     	textFoot.setId("textstyle");
     	bottomBox.getChildren().add(textFoot);
     	// Label
-    	Label label = new Label(LBL_TXT_ASSEMBLE);
+    	Label label = new Label("Assemble your menu to learn its nutrition!");
     	label.setWrapText(true);
     	label.getStyleClass().add("gray");
     	label.setFont(new Font("Arial Black", 18));
@@ -655,7 +711,6 @@ public class FrontEnd extends Application {
     	label.setTextAlignment(TextAlignment.CENTER);
     	label.setPrefHeight(140);
     	label.setPrefWidth(450);
-
 
     	bottomBox.getChildren().add(label);
     	
@@ -665,7 +720,7 @@ public class FrontEnd extends Application {
     	return rightPane;
     }
 
-	private HBox addHBox(String str)
+	public HBox addHBox(String str)
 	{
 		HBox hbox = new HBox(300);
 		hbox.setAlignment(Pos.CENTER);
