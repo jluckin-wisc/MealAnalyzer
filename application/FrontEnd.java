@@ -271,8 +271,6 @@ public class FrontEnd extends Application {
 		vbLeftCenter.setPrefWidth(500);
 
 		nameList = new ListView<>();
-		//nameList.setItems(BackEnd.getTestData().sorted());
-	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
 		nameList.setItems(foodItems);
 		vbLeftCenter.getChildren().add(nameList);
 		
@@ -285,11 +283,6 @@ public class FrontEnd extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
-                    	//Reseting nameList to filteredFoodItems
-                    	//filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
-                    	//nameList.setItems(foodItems);
-                    	//filteredFoodItemsListCount = foodItems.size();
-                        //leftPanes.setBottom(leftBottomPane());
                     	foodItems.setAll(foodData.getAllFoodItems());
                     	FXCollections.sort(foodItems, (f1, f2) -> {
                         	return f1.getName().compareTo(f2.getName()); });
@@ -588,7 +581,6 @@ public class FrontEnd extends Application {
     	lblNutrition.setText(text);
     	lblNutrition.setWrapText(true);
     	lblNutrition.getStyleClass().add("gray");
-    	//lblNutrition.setFont(new Font("Consolas", 18));
     	lblNutrition.setStyle("-fx-font-family:Consolas");
     	lblNutrition.setTextFill(Color.web("#ffffff"));
     	if (nutritionData) {
@@ -612,11 +604,8 @@ public class FrontEnd extends Application {
     			String strDouble = String.format("%.2f", nutrition[i]);
     			strNutrition.add(strDouble);
     		}
-    		//result += Nutrients.values()[0].toString() + ":\t\t" + nutrition[0];
-    		//result += String.format("%10s:%10f", Nutrients.values()[0].toString(), nutrition[0]);
     		result += String.format("%-15s%15s", Nutrients.values()[0].toString(), strNutrition.get(0));
     		for (int i = 1; i < nutrition.length; i++) {
-    			//result += "\n" + Nutrients.values()[i].toString() + ":\t\t" + nutrition[i];
     			result += "\n" + String.format("%-15s%15s", Nutrients.values()[i].toString(), strNutrition.get(i));
     		}
     		return result;
