@@ -583,7 +583,7 @@ public class FrontEnd extends Application {
 		List<String> nutNames = Stream.of(Nutrients.values())
                 .map(Nutrients::getName)
                 .collect(Collectors.toList());
-    nutNames.add(0, DEFAULT_NUTRIENT)
+		nutNames.add(0, DEFAULT_NUTRIENT);
 		cb1.getItems().setAll(nutNames);
 		cb1.setValue(DEFAULT_NUTRIENT);
 		
@@ -591,8 +591,8 @@ public class FrontEnd extends Application {
 		List<String> comps = Stream.of(Comparators.values())
                 .map(Comparators::toString)
                 .collect(Collectors.toList());
-		comps.add(0, DEFAULT_COMP)
-    cb2.getItems().setAll(comps);
+		comps.add(0, DEFAULT_COMP);
+		cb2.getItems().setAll(comps);
 		cb2.setValue(DEFAULT_COMP);
 		
 		TextField compValue = new TextField();
