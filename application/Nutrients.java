@@ -5,8 +5,7 @@ public enum Nutrients {
 	CARBS ("Carbohydrate"),
 	FAT ("Fat"),
 	PROTEIN ("Protein"),
-	FIBER ("Fiber"); //,
-//	NUTRIENT ("Nutrient");
+	FIBER ("Fiber");
 	
 	private final String name;
 	Nutrients(String name) {

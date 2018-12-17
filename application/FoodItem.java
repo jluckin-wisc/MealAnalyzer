@@ -30,6 +30,12 @@ public class FoodItem {
         nutrients = new HashMap<String, Double>();
     }
     
+    public FoodItem(String id, String name, HashMap<String, Double> nutrients) {
+    	this.id = id;
+    	this.name = name;
+    	this.nutrients = nutrients;
+    }
+    
     /**
      * Gets the name of the food item
      * 

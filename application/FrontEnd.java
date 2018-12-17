@@ -100,6 +100,11 @@ public class FrontEnd extends Application {
 	//Food items that match filters
 	private ObservableList<FoodItem> filteredFoodItemsList;
 	
+	private Label lblNutrition;
+	
+	private List<HBox> filterRows;
+	private TextField txtSearchField = new TextField();
+	
 	//TODO Add this to GUI
 	private int filteredFoodItemsListCount;
 	private ListView<FoodItem> menuList;
@@ -281,10 +286,14 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	//Reseting nameList to filteredFoodItems
-                    	filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
-                    	nameList.setItems(foodItems);
-                    	filteredFoodItemsListCount = foodItems.size();
-                        leftPanes.setBottom(leftBottomPane());
+                    	//filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
+                    	//nameList.setItems(foodItems);
+                    	//filteredFoodItemsListCount = foodItems.size();
+                        //leftPanes.setBottom(leftBottomPane());
+                    	foodItems.setAll(foodData.getAllFoodItems());
+                    	FXCollections.sort(foodItems, (f1, f2) -> {
+                        	return f1.getName().compareTo(f2.getName()); });
+                    	leftPanes.setBottom(leftBottomPane());
                     }
                 });
 		
@@ -293,83 +302,53 @@ public class FrontEnd extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
-				//Reseting oberservable list
-				filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
+				HashSet<FoodItem> foodItemsFilteredByText = new HashSet<FoodItem>();
+				HashSet<FoodItem> foodItemsFilteredByNutrients = new HashSet<FoodItem>();
+				HashSet<FoodItem> foodItemsFiltered = new HashSet<FoodItem>();
 				String textFieldSearchName = txtSearchField.getText();
+				List<String> rules = new ArrayList<String>();
+				boolean filteredByNutrients = false;
+				boolean filteredByText = false;
 				
-				//List to store items matching name
-				List<FoodItem> foodItemsMatchingText = new ArrayList<FoodItem>();
-				
-				
-				
-				//If filters is empty then just return
-				if(!textFieldSearchName.equals("")) {
-					foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
-					ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
-					for(FoodItem f :foodItemsMatchingText) {
-						filteredObservableList.add(f);
+				if (!textFieldSearchName.equals("") && textFieldSearchName != null) {
+					foodItemsFilteredByText.addAll(foodData.filterByName(textFieldSearchName));
+					filteredByText = true;
 				}
-					filteredFoodItemsList = filteredObservableList;
+				
+				for (HBox filterRow : filterRows) {
+					String strNutrient = ((ChoiceBox<String>) filterRow.getChildren().get(1)).getValue();
+					String strComparator = ((ChoiceBox<String>) filterRow.getChildren().get(2)).getValue();
+					String strCompValue = ((TextField) filterRow.getChildren().get(3)).getText();
 					
-				}
-				else {
-					filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
-				}
-				
-				
-				ArrayList<String> rules = new ArrayList<String>();
-				ArrayList<String> enums = new ArrayList<String>();
-				for(int i=0; i<Nutrients.values().length;i++) {
-					enums.add(Nutrients.values()[i].getName());
-				}
-				for(int i=0; i<Comparators.values().length;i++) {
-					enums.add(Comparators.values()[i].toString());
-				}
-				
-				enums.remove(Comparators.COMPARATOR.toString());
-				
-				boolean nutFiltered = false;
-				for(int i =0; i < filterRows.size(); i++) {
-					String ruleString = "";
-					for(int j = 0; j<filterRows.get(i).getChildren().size();j++) {
-						
-						if(filterRows.get(i).getChildren().get(j).getClass() == ChoiceBox.class) {
-							ChoiceBox comp = (ChoiceBox) filterRows.get(i).getChildren().get(j);
-
-							String compValue = ""+ comp.getValue();
-
-							if(!enums.contains(compValue)) {
-								ruleString += " null";
-							} else {
-								ruleString += " "+ comp.getValue();
-								nutFiltered = true;
-							}								
-							
+					strNutrient = Nutrients.getFromText(strNutrient);
+					strComparator = Comparators.getFromText(strComparator);
+					
+					if (strNutrient != null && strComparator != null) {
+						try {
+							double compValue = Double.parseDouble(strCompValue);
+							rules.add(strNutrient + " " + strComparator + " " + strCompValue);
+						} catch (Exception e) {
+							// only need the try/catch to make sure the string double is parse-able
 						}
-						if(filterRows.get(i).getChildren().get(j).getClass() == TextField.class) {
-							TextField amount = (TextField) filterRows.get(i).getChildren().get(j);
-							//System.out.println(amount.getText());
-							ruleString += " "+ amount.getText();
-						}
-						
-					}
-					if(!ruleString.equals("")) {
-						rules.add(ruleString);
 					}
 				}
 				
-
-				if(nutFiltered) {
-					List<FoodItem> foodItemsMatchingRules = new ArrayList<FoodItem>();
-					foodItemsMatchingRules = foodData.filterByNutrients(rules);
-				
-					filteredFoodItemsList.retainAll(foodItemsMatchingRules);
+				if (rules.size() > 0) {
+					foodItemsFilteredByNutrients.addAll(foodData.filterByNutrients(rules));
+					filteredByNutrients = true;
+					
+					if (filteredByText) {
+						foodItemsFilteredByText.retainAll(foodItemsFilteredByNutrients);
+						foodItemsFiltered = foodItemsFilteredByText;
+					}
+					else {
+						foodItemsFiltered = foodItemsFilteredByNutrients;
+					}
 				}
 				
-				//Displaying the filtered list
-				nameList.setItems(filteredFoodItemsList);
-				filteredFoodItemsListCount = filteredFoodItemsList.size();
-				
+				foodItems.setAll(foodItemsFiltered);
+				FXCollections.sort(foodItems, (f1, f2) -> {
+                        	return f1.getName().compareTo(f2.getName()); });
 				
 				//TODO We need to add the size of filteredFoodItemsList
 				//to the GUI
@@ -395,8 +374,7 @@ public class FrontEnd extends Application {
 		return vbPad;
 	}
 	
-	private List<HBox> filterRows;
-	private TextField txtSearchField = new TextField();
+	
 	
 	// Left Bottom: Filters
 	public VBox leftBottomPane() {
@@ -459,7 +437,7 @@ public class FrontEnd extends Application {
 		
 		ChoiceBox<String> cb2 = new ChoiceBox<String>();
 		List<String> comps = Stream.of(Comparators.values())
-                .map(Comparators::toString)
+                .map(Comparators::getName)
                 .collect(Collectors.toList());
 		cb2.getItems().setAll(comps);
 		cb2.setValue("Comparator");
@@ -492,8 +470,10 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     		
-                    	names.addAll(nameList.getSelectionModel().getSelectedItem());
-                    	
+                    	// Copy selected item into a new object
+                    	FoodItem selectedItem = nameList.getSelectionModel().getSelectedItem();
+                    	FoodItem copy = new FoodItem(selectedItem.getID(), selectedItem.getName(), selectedItem.getNutrients());
+                    	names.addAll(copy);
 
                     	//Adding the window
                     	menuList.setItems(names);
@@ -544,11 +524,14 @@ public class FrontEnd extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
-                    	
-                    	names.removeAll(nameList.getSelectionModel().getSelectedItem());
+                    	names.removeAll(menuList.getSelectionModel().getSelectedItems());
                     	                    	
                     	//Adding the window
                     	menuList.setItems(names);
+                    	
+                    	if (names.size() == 0) {
+                    		setMenuNutritionLabel(lblNutrition, "Assemble your menu to learn its nutrition!", false);
+                    	}
                     }
                 });
     	
@@ -556,6 +539,20 @@ public class FrontEnd extends Application {
     	btn2.setWrapText(true);
     	btn2.setTextAlignment(TextAlignment.CENTER);
     	btn2.setId("tallbtn");
+    	btn2.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				double[] mealData = new double[Nutrients.values().length]; 
+				for (FoodItem foodItem : names) {
+					for (Nutrients n : Nutrients.values()) {
+						mealData[n.ordinal()] += foodItem.getNutrientValue(n.getName());
+					}
+				}
+				setMenuNutritionLabel(lblNutrition, getNutritionTextFromData(mealData), true);
+			}
+    		
+    	});
 		
     	btnBox.getChildren().addAll(btn1, btn2);
     	rightCenter.getChildren().add(btnBox);
@@ -574,23 +571,65 @@ public class FrontEnd extends Application {
     	textFoot.setId("textstyle");
     	bottomBox.getChildren().add(textFoot);
     	// Label
-    	Label label = new Label("Assemble your menu to learn its nutrition!");
+    	/*Label label = new Label("Assemble your menu to learn its nutrition!");
     	label.setWrapText(true);
     	label.getStyleClass().add("gray");
     	label.setFont(new Font("Arial Black", 18));
     	label.setTextFill(Color.web("#ffffff"));
     	label.setTextAlignment(TextAlignment.CENTER);
     	label.setPrefHeight(140);
-    	label.setPrefWidth(450);
+    	label.setPrefWidth(450);*/
+    	lblNutrition = new Label();
+    	setMenuNutritionLabel(lblNutrition, "Assemble your menu to learn its nutrition!", false);
 
 
-    	bottomBox.getChildren().add(label);
+    	bottomBox.getChildren().add(lblNutrition);
     	
     	rightPane.setBottom(bottomBox);
     	
     	
     	return rightPane;
     }
+    
+    private void setMenuNutritionLabel(Label lblNutrition, String text, boolean nutritionData) {
+    	lblNutrition.setText(text);
+    	lblNutrition.setWrapText(true);
+    	lblNutrition.getStyleClass().add("gray");
+    	lblNutrition.setFont(new Font("Consolas", 18));
+    	lblNutrition.setTextFill(Color.web("#ffffff"));
+    	if (nutritionData) {
+    		lblNutrition.setTextAlignment(TextAlignment.LEFT);
+    	}
+    	else {
+    		lblNutrition.setTextAlignment(TextAlignment.CENTER);
+    	}
+    	lblNutrition.setPrefHeight(140);
+    	lblNutrition.setPrefWidth(450);
+    }
+    
+    private String getNutritionTextFromData(double[] nutrition) {
+    	String result = "";
+    	if (nutrition.length != Nutrients.values().length) {
+    		return "Error - problem assembling analysis";
+    	}
+    	else {
+    		ArrayList<String> strNutrition = new ArrayList<String>();
+    		for (int i = 0; i < nutrition.length; i++) {
+    			String strDouble = String.format("%.2f", nutrition[i]);
+    			strNutrition.add(strDouble);
+    		}
+    		//result += Nutrients.values()[0].toString() + ":\t\t" + nutrition[0];
+    		//result += String.format("%10s:%10f", Nutrients.values()[0].toString(), nutrition[0]);
+    		result += String.format("%-15s%15s", Nutrients.values()[0].toString(), strNutrition.get(0));
+    		for (int i = 1; i < nutrition.length; i++) {
+    			//result += "\n" + Nutrients.values()[i].toString() + ":\t\t" + nutrition[i];
+    			result += "\n" + String.format("%-15s%15s", Nutrients.values()[i].toString(), strNutrition.get(i));
+    		}
+    		return result;
+    	}
+    }
+    
+    
 
 	public HBox addHBox(String str)
 	{
