@@ -252,12 +252,12 @@ public class BPTree<K extends Comparable<K>, V>
 		 * @see BPTree.Node#insert(java.lang.Comparable, java.lang.Object)
 		 */
 		void insert(K key, V value) {
-			//If value is null then node was inserted
-			//via promotion
+			// If value is null then node was inserted
+			// via promotion
 			if (value == null) {
 				int keyPosition = -1;
-				
-				//Finding the key position
+
+				// Finding the key position
 				if (super.keys.size() == 0) {
 					super.keys.add(key);
 					keyPosition = 0;
@@ -402,34 +402,52 @@ public class BPTree<K extends Comparable<K>, V>
 		 */
 		List<V> rangeSearch(K key,
 				String comparator) {
-			
-			for (int i = 0; i < this.children.size(); i++) {
-				if(this.children.get(i).keys.get(0) != null) {
-					
-				
-					int compared = this.children.get(i).keys.get(0).compareTo(key);
+
+			for (int i = 0; i < this.children
+					.size(); i++) {
+				if (this.children.get(i).keys
+						.get(0) != null) {
+
+					int compared = this.children
+							.get(i).keys.get(0)
+									.compareTo(
+											key);
 					if (comparator.equals("<=")) {
-						if(compared <= 0) {
-							return this.children.get(i).rangeSearch(key, comparator);
+						if (compared <= 0) {
+							return this.children
+									.get(i)
+									.rangeSearch(
+											key,
+											comparator);
 						}
 					}
 					// If equal comparator
-					else if (comparator.equals("==")) {
-						if(compared == 0) {
-							return this.children.get(i).rangeSearch(key, comparator);
+					else if (comparator
+							.equals("==")) {
+						if (compared == 0) {
+							return this.children
+									.get(i)
+									.rangeSearch(
+											key,
+											comparator);
 						}
 					}
 					// If greater than or equal to comparator
-					else if (comparator.equals(">=")) {
-						if(compared >= 0) {
-							return this.children.get(i).rangeSearch(key, comparator);
+					else if (comparator
+							.equals(">=")) {
+						if (compared >= 0) {
+							return this.children
+									.get(i)
+									.rangeSearch(
+											key,
+											comparator);
 						}
 					}
-						
-					
+
 				}
 			}
-			return this.children.get(0).rangeSearch(key, comparator);
+			return this.children.get(0)
+					.rangeSearch(key, comparator);
 		}
 
 	} // End of class InternalNode
@@ -469,10 +487,11 @@ public class BPTree<K extends Comparable<K>, V>
 		 * @see BPTree.Node#getFirstLeafKey()
 		 */
 		K getFirstLeafKey() {
-			if(this.keys == null ||this.keys.size()==0) {
+			if (this.keys == null
+					|| this.keys.size() == 0) {
 				return null;
 			}
-			
+
 			return this.keys.get(0);
 		}
 
@@ -769,8 +788,7 @@ public class BPTree<K extends Comparable<K>, V>
 				.rangeSearch(0.5d, ">=");
 		System.out.println("Filtered values: "
 				+ filteredValues.toString());
-		
-		
+
 	}
 
 } // End of class BPTree

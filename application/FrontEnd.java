@@ -100,12 +100,15 @@ public class FrontEnd extends Application {
 	//Food items that match filters
 	private ObservableList<FoodItem> filteredFoodItemsList;
 	
+	//TODO Add this to GUI
+	private int filteredFoodItemsListCount;
 	
 	@Override
 	public void start(Stage primaryStage) {
 		foodData = new FoodData();
 		foodItems = FXCollections.observableArrayList();
 		filteredFoodItemsList = FXCollections.observableArrayList();
+		int filteredFoodItemsListCount=0;
 		
 		Scene scene = new Scene(mainPanes, 1600, 900);
 		
@@ -222,6 +225,7 @@ public class FrontEnd extends Application {
 
                         //Sorting list in alpha order
                         FXCollections.sort(foodItems, alphaOrder);
+                        filteredFoodItemsListCount = foodItems.size();
 
                     }
                 }
@@ -277,6 +281,7 @@ public class FrontEnd extends Application {
                     	//Reseting nameList to filteredFoodItems
                     	filteredFoodItemsList = FXCollections.observableArrayList(foodItems);
                     	nameList.setItems(foodItems);
+                    	filteredFoodItemsListCount = foodItems.size();
                         leftPanes.setBottom(leftBottomPane());
                     }
                 });
@@ -361,6 +366,8 @@ public class FrontEnd extends Application {
 				
 				//Displaying the filtered list
 				nameList.setItems(filteredFoodItemsList);
+				filteredFoodItemsListCount = filteredFoodItemsList.size();
+				
 				
 				//TODO We need to add the size of filteredFoodItemsList
 				//to the GUI
