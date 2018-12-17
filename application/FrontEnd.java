@@ -89,7 +89,7 @@ public class FrontEnd extends Application {
 	final static String PROMPT_ENTER_VAL	= "Enter Value...";
 
 	final static String FTR_1				= "v0.1";
-	final static String FTR_2				= "\u00a9 2018 Group Twelve";
+	final static String FTR_2				= "� 2018 Group Twelve";
 	final static String FTR_3				= "Online Help";
 	final static String FTR_4				= "Debug";
 	
@@ -102,6 +102,9 @@ public class FrontEnd extends Application {
 	
 	//TODO Add this to GUI
 	private int filteredFoodItemsListCount;
+	private ListView<FoodItem> menuList;
+	private ObservableList<FoodItem> names;
+	private ListView<FoodItem> nameList;
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -109,6 +112,8 @@ public class FrontEnd extends Application {
 		foodItems = FXCollections.observableArrayList();
 		filteredFoodItemsList = FXCollections.observableArrayList();
 		int filteredFoodItemsListCount=0;
+		menuList = new ListView<>();
+		names = FXCollections.observableArrayList();
 		
 		Scene scene = new Scene(mainPanes, 1600, 900);
 		
@@ -213,9 +218,7 @@ public class FrontEnd extends Application {
                 public void handle(final ActionEvent e) {
                     File file = fileChooser.showOpenDialog(stage);
                     if (file != null) {
-                    	// TODO: replace me
-                        System.out.println("Opening File: " + file.getName());
-                        foodData.loadFoodItems(file.getPath());
+                    	foodData.loadFoodItems(file.getPath());
                         foodItems.clear();
                         foodItems.addAll(foodData.getAllFoodItems());
                         
@@ -239,8 +242,7 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                         File file = fileChooser.showSaveDialog(stage);
-                        if (file != null) {
-                        	// TODO: replace me
+                        if (file != null) {  
                             System.out.println("Saving File: " + file.getName());
                             foodData.saveFoodItems(file.getPath());
                         }
@@ -263,7 +265,7 @@ public class FrontEnd extends Application {
 		vbLeftCenter.getChildren().add(text);
 		vbLeftCenter.setPrefWidth(500);
 
-		ListView<FoodItem> nameList = new ListView<>();
+		nameList = new ListView<>();
 		//nameList.setItems(BackEnd.getTestData().sorted());
 	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
 		nameList.setItems(foodItems);
@@ -384,43 +386,6 @@ public class FrontEnd extends Application {
 		return vbLeftCenter;
 	}
 	
-	// Left Center: Add
-	
-//	public static VBox leftCenterAdd() {
-//		VBox vbLeftCenter = new VBox(5);
-//		Text text = new Text(TITLE_LEFT);
-//		text.setId("textstyle");
-//		vbLeftCenter.setId("vbox");
-//		vbLeftCenter.getChildren().add(text);
-//		vbLeftCenter.setPrefWidth(500);
-//
-//		ListView<String> nameList = new ListView<>();
-//		nameList.setItems(BackEnd.getTestData().sorted());
-//		vbLeftCenter.getChildren().add(nameList);
-//		
-//		HBox buttons = new HBox(25);
-//		btnClear = new Button(BTN_CLR_FLTRS);
-//		Button btn2 = new Button(BTN_APPLY_FLTRS);
-//		
-//		// Clear Filters
-//        btnClear.setOnAction(
-//                new EventHandler<ActionEvent>() {
-//                    @Override
-//                    public void handle(final ActionEvent e) {
-//                    	// TODO: replace me
-//                        System.out.println("Clearing Filter");
-//                        leftPanes.setBottom(leftBottomPane());
-//                    }
-//                });
-//		buttons.setAlignment(Pos.TOP_CENTER);
-//		buttons.getChildren().addAll(btnClear, btn2);
-//		buttons.setId("hbox");
-//		vbLeftCenter.getChildren().add(buttons);
-//		
-//		vbLeftCenter.getStyleClass().add("pane");
-//		return vbLeftCenter;
-//	}
-	
 	
 	// Left Left & Right: Just Padding
 	public VBox vertPadding() {
@@ -475,8 +440,6 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	if(filterCnt <= 2) {
-                        	// TODO: check for valid values
-                            //filterPane.getChildren().add(getFilterRow());
                     		HBox newRow = getFilterRow();
                     		filterRows.add(newRow);
                     		filterPane.getChildren().add(newRow);
@@ -520,6 +483,22 @@ public class FrontEnd extends Application {
     	btn1.setTextAlignment(TextAlignment.CENTER);
     	btn1.setId("supertallbtn");
     	
+    	//TODO ADD TO CURRENT MENU
+    	
+    	//ListView<String> menuList = new ListView<>();
+    	//private ObservableList<String> names = FXCollections.observableArrayList();
+    	btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    		
+                    	names.addAll(nameList.getSelectionModel().getSelectedItem());
+                    	
+
+                    	//Adding the window
+                    	menuList.setItems(names);
+                    }
+                });
     	AnchorPane.setTopAnchor(btn1, 160.0);
     	AnchorPane.setLeftAnchor(btn1, 30.0);
     	
@@ -541,23 +520,37 @@ public class FrontEnd extends Application {
     	rightHeader.getChildren().add(text);
     	rightPane.setTop(rightHeader);
     	
+    
     	// Center
     	VBox rightCenter = new VBox(15);
     	rightCenter.setAlignment(Pos.TOP_CENTER);
     	rightCenter.setPrefWidth(500);
     	
-		ListView<String> menuList = new ListView<>();
-		ObservableList<String> names = FXCollections.observableArrayList();
+    	//TODO Menu
+		menuList = new ListView<>();
+		names = FXCollections.observableArrayList();
 		menuList.setItems(names);
 		rightCenter.getChildren().add(menuList);
 		
 		HBox btnBox = new HBox(50);
 		btnBox.setAlignment(Pos.TOP_CENTER);
 		
+		//TODO REMOVE
 		Button btn1 = new Button(BTN_REM_SEL);
     	btn1.setWrapText(true);
     	btn1.setTextAlignment(TextAlignment.CENTER);
     	btn1.setId("tallbtn");
+    	btn1.setOnAction(
+                new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(final ActionEvent e) {
+                    	
+                    	names.removeAll(nameList.getSelectionModel().getSelectedItem());
+                    	                    	
+                    	//Adding the window
+                    	menuList.setItems(names);
+                    }
+                });
     	
 		Button btn2 = new Button(BTN_CALC_MENU);
     	btn2.setWrapText(true);
