@@ -266,8 +266,6 @@ public class FrontEnd extends Application {
 		vbLeftCenter.setPrefWidth(500);
 
 		nameList = new ListView<>();
-		//nameList.setItems(BackEnd.getTestData().sorted());
-	    //ObservableList<FoodItem> observableList = FXCollections.observableList(foodData.getAllFoodItems());
 		nameList.setItems(foodItems);
 		vbLeftCenter.getChildren().add(nameList);
 		
@@ -305,7 +303,8 @@ public class FrontEnd extends Application {
 				//If filters is empty then just return
 				if(!textFieldSearchName.equals("")) {
 					foodItemsMatchingText = foodData.filterByName(textFieldSearchName);
-					ObservableList<FoodItem> filteredObservableList = FXCollections.observableArrayList();
+					ObservableList<FoodItem> filteredObservableList = 
+							FXCollections.observableArrayList();
 					for(FoodItem f :foodItemsMatchingText) {
 						filteredObservableList.add(f);
 				}
@@ -483,16 +482,13 @@ public class FrontEnd extends Application {
     	btn1.setTextAlignment(TextAlignment.CENTER);
     	btn1.setId("supertallbtn");
     	
-    	//TODO ADD TO CURRENT MENU
-    	
-    	//ListView<String> menuList = new ListView<>();
-    	//private ObservableList<String> names = FXCollections.observableArrayList();
     	btn1.setOnAction(
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
                     		
-                    	names.addAll(nameList.getSelectionModel().getSelectedItem());
+                    	names.addAll(nameList.getSelectionModel().
+                    			getSelectedItem());
                     	
 
                     	//Adding the window
@@ -526,7 +522,7 @@ public class FrontEnd extends Application {
     	rightCenter.setAlignment(Pos.TOP_CENTER);
     	rightCenter.setPrefWidth(500);
     	
-    	//TODO Menu
+    	
 		menuList = new ListView<>();
 		names = FXCollections.observableArrayList();
 		menuList.setItems(names);
@@ -535,7 +531,7 @@ public class FrontEnd extends Application {
 		HBox btnBox = new HBox(50);
 		btnBox.setAlignment(Pos.TOP_CENTER);
 		
-		//TODO REMOVE
+		
 		Button btn1 = new Button(BTN_REM_SEL);
     	btn1.setWrapText(true);
     	btn1.setTextAlignment(TextAlignment.CENTER);
@@ -545,7 +541,8 @@ public class FrontEnd extends Application {
                     @Override
                     public void handle(final ActionEvent e) {
                     	
-                    	names.removeAll(nameList.getSelectionModel().getSelectedItem());
+                    	names.removeAll(nameList.getSelectionModel().
+                    			getSelectedItem());
                     	                    	
                     	//Adding the window
                     	menuList.setItems(names);
@@ -582,7 +579,6 @@ public class FrontEnd extends Application {
     	label.setTextAlignment(TextAlignment.CENTER);
     	label.setPrefHeight(140);
     	label.setPrefWidth(450);
-
 
     	bottomBox.getChildren().add(label);
     	
